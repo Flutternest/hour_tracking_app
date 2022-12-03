@@ -62,7 +62,9 @@ class DriverDrawer extends StatelessWidget {
                     iconColor: Colors.red,
                     textColor: Colors.red,
                     leading: const Icon(Icons.logout),
-                    onTap: () {},
+                    onTap: () {
+                      AppRouter.navigateAndRemoveUntil(AppRoutes.welcomePage);
+                    },
                   ),
                 ],
               ),
