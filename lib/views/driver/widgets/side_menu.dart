@@ -43,7 +43,9 @@ class DriverDrawer extends StatelessWidget {
                     title: const Text('My Earnings'),
                     horizontalTitleGap: 5,
                     leading: const Icon(Icons.attach_money),
-                    onTap: () {},
+                    onTap: () {
+                      AppRouter.navigateToPage(AppRoutes.driverEarningsPage);
+                    },
                   ),
                   const Spacer(),
                   ListTile(

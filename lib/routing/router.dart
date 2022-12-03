@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flux_mvp/views/admin/auth/admin_login_page.dart';
 import 'package:flux_mvp/views/driver/auth/driver_login_page.dart';
+import 'package:flux_mvp/views/driver/settings/my_earnings.dart';
 import 'package:flux_mvp/views/driver/settings/profile_page.dart';
 import 'package:flux_mvp/views/splash_page.dart';
 
@@ -22,6 +23,7 @@ class AppRoutes {
   static const driverDashboardPage = '/driver-dashboard-page';
   static const driverResultPage = '/driver-result-page';
   static const driverProfilePage = '/driver-profile-page';
+  static const driverEarningsPage = '/driver-earnings-page';
 }
 
 class AppRouter {
@@ -106,6 +108,12 @@ class AppRouter {
       case AppRoutes.driverProfilePage:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const DriverProfilePage(),
+          settings: settings,
+          fullscreenDialog: false,
+        );
+      case AppRoutes.driverEarningsPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => const DriverEarningsPage(),
           settings: settings,
           fullscreenDialog: false,
         );
