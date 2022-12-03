@@ -5,6 +5,7 @@ import 'package:flux_mvp/views/admin/auth/admin_login_page.dart';
 import 'package:flux_mvp/views/driver/auth/driver_login_page.dart';
 import 'package:flux_mvp/views/splash_page.dart';
 
+import '../views/driver/dashboard/dashboad_page.dart';
 import '../views/welcome_page.dart';
 
 class AppRoutes {
@@ -16,6 +17,7 @@ class AppRoutes {
 
   //driver flow
   static const driverLoginPage = '/driver-login-page';
+  static const driverDashboardPage = '/driver-dashboard-page';
 }
 
 class AppRouter {
@@ -82,6 +84,12 @@ class AppRouter {
       case AppRoutes.driverLoginPage:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const DriverLoginPage(),
+          settings: settings,
+          fullscreenDialog: false,
+        );
+      case AppRoutes.driverDashboardPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => const DashboardPage(),
           settings: settings,
           fullscreenDialog: false,
         );

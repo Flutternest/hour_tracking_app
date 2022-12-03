@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
+import 'package:flux_mvp/routing/router.dart';
 
 import '../../../core/common_widgets/password_field.dart';
 import '../../../core/constants/paths.dart';
@@ -53,7 +54,9 @@ class DriverLoginPage extends StatelessWidget {
               const PasswordTextField(),
               verticalSpaceMedium,
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  AppRouter.navigateToPage(AppRoutes.driverDashboardPage);
+                },
                 child: const Text('Login'),
               ),
             ],
