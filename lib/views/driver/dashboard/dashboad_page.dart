@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/constants/paths.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
+import 'package:flux_mvp/routing/router.dart';
 
 import '../../../core/constants/colors.dart';
 
@@ -89,7 +90,9 @@ class DashboardPage extends StatelessWidget {
                     horizontalSpaceRegular,
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          AppRouter.navigateToPage(AppRoutes.driverResultPage);
+                        },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red),
                         child: const Text("End Trip"),
