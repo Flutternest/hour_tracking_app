@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flux_mvp/views/admin/auth/admin_login_page.dart';
+import 'package:flux_mvp/views/driver/auth/driver_login_page.dart';
 import 'package:flux_mvp/views/splash_page.dart';
 
 import '../views/welcome_page.dart';
@@ -8,6 +10,12 @@ import '../views/welcome_page.dart';
 class AppRoutes {
   static const splashPage = '/';
   static const welcomePage = '/welcome-page';
+
+  //admin flow
+  static const adminLoginPage = '/admin-login-page';
+
+  //driver flow
+  static const driverLoginPage = '/driver-login-page';
 }
 
 class AppRouter {
@@ -58,6 +66,22 @@ class AppRouter {
       case AppRoutes.welcomePage:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const WelcomePage(),
+          settings: settings,
+          fullscreenDialog: false,
+        );
+
+      //admin flow
+      case AppRoutes.adminLoginPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => const AdminLoginPage(),
+          settings: settings,
+          fullscreenDialog: false,
+        );
+
+      //driver flow
+      case AppRoutes.driverLoginPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => const DriverLoginPage(),
           settings: settings,
           fullscreenDialog: false,
         );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
+import 'package:flux_mvp/routing/router.dart';
 
 import '../core/common_widgets/app_padding.dart';
 import '../core/constants/paths.dart';
@@ -17,10 +18,13 @@ class WelcomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(
-              child: SizedBox(
-                width: 200,
-                child: SvgPicture.asset(
-                  SvgPaths.icLogo,
+              child: Hero(
+                tag: "logo",
+                child: SizedBox(
+                  width: 200,
+                  child: SvgPicture.asset(
+                    SvgPaths.icLogo,
+                  ),
                 ),
               ),
             ),
@@ -58,7 +62,9 @@ class WelcomePage extends StatelessWidget {
             ),
             verticalSpaceRegular,
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                AppRouter.navigateToPage(AppRoutes.driverLoginPage);
+              },
               child: const Text('Driver Login'),
             ),
           ],
