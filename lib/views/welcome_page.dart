@@ -14,21 +14,52 @@ class WelcomePage extends StatelessWidget {
       body: DefaultAppPadding(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SvgPicture.asset(
-              SvgPaths.icLogo,
-              width: 200,
-              height: 200,
+            Center(
+              child: SizedBox(
+                width: 200,
+                child: SvgPicture.asset(
+                  SvgPaths.icLogo,
+                ),
+              ),
             ),
-            verticalSpaceMedium,
+            verticalSpaceSemiLarge,
             Text(
               'Next-Generation Payroll For Trucking Industry',
               style: Theme.of(context).textTheme.bodyText1,
+              textAlign: TextAlign.center,
             ),
-            verticalSpaceMedium,
+            verticalSpaceSemiLarge,
             ElevatedButton(
               onPressed: () {},
-              child: const Text('Get Started'),
+              child: const Text('Admin Login'),
+            ),
+            verticalSpaceRegular,
+            Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                horizontalSpaceRegular,
+                Text(
+                  'Or',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                horizontalSpaceRegular,
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
+            verticalSpaceRegular,
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text('Driver Login'),
             ),
           ],
         ),
