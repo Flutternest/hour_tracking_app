@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '455456088796',
     projectId: 'flux-mvp',
     storageBucket: 'flux-mvp.appspot.com',
-    iosClientId: '455456088796-jv9a5rhpkbhooqbrs0hfo8vc5abe35ip.apps.googleusercontent.com',
+    iosClientId:
+        '455456088796-jv9a5rhpkbhooqbrs0hfo8vc5abe35ip.apps.googleusercontent.com',
     iosBundleId: 'com.example.fluxMvp',
   );
 }

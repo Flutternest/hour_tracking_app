@@ -13,7 +13,7 @@ class SplashPage extends HookWidget {
   Widget build(BuildContext context) {
     useEffect(() {
       Future.delayed(const Duration(seconds: 3), () {
-        AppRouter.navigateToPage(AppRoutes.welcomePage, replace: true);
+        AppRouter.navigateToPage(AppRoutes.authDecisionPage);
       });
       return null;
     }, []);
