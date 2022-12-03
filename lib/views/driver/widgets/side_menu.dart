@@ -47,6 +47,14 @@ class DriverDrawer extends StatelessWidget {
                       AppRouter.navigateToPage(AppRoutes.driverEarningsPage);
                     },
                   ),
+                  ListTile(
+                    title: const Text('Analytics'),
+                    horizontalTitleGap: 5,
+                    leading: const Icon(Icons.auto_graph_sharp),
+                    onTap: () {
+                      AppRouter.navigateToPage(AppRoutes.driverAnalyticsPage);
+                    },
+                  ),
                   const Spacer(),
                   ListTile(
                     title: const Text('Logout'),
