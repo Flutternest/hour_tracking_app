@@ -24,11 +24,9 @@ class DriverLoginPage extends StatelessWidget {
               Center(
                 child: Hero(
                   tag: "logo",
-                  child: SizedBox(
+                  child: SvgPicture.asset(
+                    SvgPaths.icLogo,
                     width: 200,
-                    child: SvgPicture.asset(
-                      SvgPaths.icLogo,
-                    ),
                   ),
                 ),
               ),
