@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flux_mvp/core/constants/paths.dart';
+import 'package:flux_mvp/routing/router.dart';
 
 import '../../../core/constants/colors.dart';
 
@@ -34,7 +35,9 @@ class DriverDrawer extends StatelessWidget {
                     title: const Text('My Profile'),
                     horizontalTitleGap: 5,
                     leading: const Icon(Icons.person),
-                    onTap: () {},
+                    onTap: () {
+                      AppRouter.navigateToPage(AppRoutes.driverProfilePage);
+                    },
                   ),
                   ListTile(
                     title: const Text('My Earnings'),
