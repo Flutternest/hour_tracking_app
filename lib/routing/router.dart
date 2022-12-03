@@ -2,16 +2,16 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flux_mvp/auth/auth_widget.dart';
-import 'package:flux_mvp/views/admin/auth/admin_login_page.dart';
-import 'package:flux_mvp/views/driver/auth/driver_login_page.dart';
-import 'package:flux_mvp/views/driver/settings/analytics_page.dart';
-import 'package:flux_mvp/views/driver/settings/my_earnings.dart';
-import 'package:flux_mvp/views/driver/settings/profile_page.dart';
-import 'package:flux_mvp/views/splash_page.dart';
+import 'package:flux_mvp/features/admin/auth/admin_login_page.dart';
+import 'package:flux_mvp/features/driver/auth/driver_login_page.dart';
+import 'package:flux_mvp/features/driver/settings/analytics_page.dart';
+import 'package:flux_mvp/features/driver/settings/my_earnings.dart';
+import 'package:flux_mvp/features/driver/settings/profile_page.dart';
+import 'package:flux_mvp/features/splash_page.dart';
 
-import '../views/driver/dashboard/dashboad_page.dart';
-import '../views/driver/dashboard/result_page.dart';
-import '../views/welcome_page.dart';
+import '../features/driver/dashboard/dashboad_page.dart';
+import '../features/driver/dashboard/result_page.dart';
+import '../features/welcome_page.dart';
 
 class AppRoutes {
   static const splashPage = '/';

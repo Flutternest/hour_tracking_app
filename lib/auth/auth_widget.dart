@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flux_mvp/views/driver/dashboard/dashboad_page.dart';
-import 'package:flux_mvp/views/welcome_page.dart';
+import 'package:flux_mvp/features/driver/dashboard/dashboad_page.dart';
+import 'package:flux_mvp/features/welcome_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../core/constants/configs.dart';
