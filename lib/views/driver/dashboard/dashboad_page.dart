@@ -5,6 +5,7 @@ import 'package:flux_mvp/core/utils/ui_helper.dart';
 import 'package:flux_mvp/routing/router.dart';
 
 import '../../../core/constants/colors.dart';
+import '../widgets/side_menu.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -12,7 +13,10 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Dashboard")),
+      appBar: AppBar(
+        title: const Text("Dashboard"),
+      ),
+      drawer: const DriverDrawer(),
       body: SafeArea(
         child: DefaultAppPadding.horizontal(
           child: SingleChildScrollView(
