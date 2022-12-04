@@ -144,6 +144,36 @@ class AppUtils {
     }).join('');
   }
 
+  ///Generates readable text from total duration passed in as parameter
+  ///
+  ///For example:
+  ///`convertSecondstoTimeframe(Duration(seconds:2000))` returns _"33 minutes"_
+  static String convertSecondstoTimeframe(Duration duration,
+      {bool shortNames = false, bool uppercase = false}) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+
+    String hourText = "hours";
+    String minuteText = "minutes";
+    String secondText = "seconds";
+
+    if (shortNames) {
+      hourText = "h";
+      minuteText = "m";
+      secondText = "s";
+    }
+
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+
+    if (duration.inHours != 0) {
+      return "${twoDigits(duration.inHours)} $hourText $twoDigitMinutes $minuteText $twoDigitSeconds $secondText";
+    } else if (duration.inMinutes != 0) {
+      return "$twoDigitMinutes $minuteText $twoDigitSeconds $secondText";
+    } else {
+      return "$twoDigitSeconds $secondText";
+    }
+  }
+
   static String formatTimer(Duration d) {
     final minutes = _pad2(d.inMinutes);
     final seconds = _pad2(d.inSeconds % 60);
