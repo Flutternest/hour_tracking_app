@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flux_mvp/auth/auth_controller.dart';
 import 'package:flux_mvp/core/constants/paths.dart';
 import 'package:flux_mvp/routing/router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/constants/colors.dart';
 
-class DriverDrawer extends StatelessWidget {
+class DriverDrawer extends HookConsumerWidget {
   const DriverDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Drawer(
       child: Column(
         children: [
@@ -62,8 +64,8 @@ class DriverDrawer extends StatelessWidget {
                     iconColor: Colors.red,
                     textColor: Colors.red,
                     leading: const Icon(Icons.logout),
-                    onTap: () {
-                      AppRouter.navigateAndRemoveUntil(AppRoutes.welcomePage);
+                    onTap: () async {
+                      await ref.read(authControllerProvider.notifier).logout();
                     },
                   ),
                 ],

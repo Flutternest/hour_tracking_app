@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flux_mvp/auth/auth_controller.dart';
 import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/common_widgets/error_view.dart';
 import 'package:flux_mvp/core/constants/paths.dart';
@@ -17,6 +18,7 @@ import 'package:pausable_timer/pausable_timer.dart';
 
 import '../../../core/common_widgets/app_loader.dart';
 import '../../../core/constants/colors.dart';
+import '../../../global_providers.dart';
 import '../../common/providers/trip.dart';
 import '../controllers/driver_trip_controller.dart';
 import '../widgets/side_menu.dart';
@@ -170,6 +172,17 @@ class DashboardPage extends HookConsumerWidget {
                             onPressed: createTripAsync.isLoading
                                 ? null
                                 : () async {
+                                    final cu = ref.read(currentUserProvider);
+                                    if (cu == null) {
+                                      showSnackBar(context,
+                                          message:
+                                              "Please login again to continue.");
+
+                                      await ref
+                                          .read(authControllerProvider.notifier)
+                                          .logout();
+                                      return;
+                                    }
                                     initiateTimer();
                                     await prefs.set(
                                         PrefKeys.isTimerOnGoing, true);
@@ -181,10 +194,10 @@ class DashboardPage extends HookConsumerWidget {
                                         .createTrip(
                                           Trip(
                                             tripStatus: "ongoing",
-                                            driverId: "1",
+                                            driverId: cu.driverId,
                                             amount: 0,
-                                            driverName: "John Doe",
-                                            eldSerialId: "123123",
+                                            driverName: cu.name,
+                                            eldSerialId: cu.eldSerialId,
                                             start: DateTime.now(),
                                             miles: random.nextDoubleInRange(
                                                 368, 1979),
