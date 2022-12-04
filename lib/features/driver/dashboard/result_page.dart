@@ -23,11 +23,11 @@ class DriverResultPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Today's log result")),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: DefaultAppPadding(
-            child: tripDetailsAsync.when(
-              data: (trip) {
-                return Column(
+        child: tripDetailsAsync.when(
+          data: (trip) {
+            return SingleChildScrollView(
+              child: DefaultAppPadding(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
@@ -126,36 +126,26 @@ class DriverResultPage extends HookConsumerWidget {
                     ),
                     verticalSpaceRegular,
                     ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[700],
-                      ),
                       onPressed: () => AppRouter.navigateToPage(
                           AppRoutes.driverAnalyticsPage),
                       icon: const Icon(Icons.auto_graph_sharp),
-                      label: const Text("All Trips"),
+                      label: const Text("View All Trips"),
                     ),
                     verticalSpaceRegular,
                     ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[700],
-                      ),
                       onPressed: () => AppRouter.navigateToPage(
                           AppRoutes.driverEarningsPage),
                       icon: const Icon(Icons.attach_money),
-                      label: const Text("All Earnings"),
+                      label: const Text("View All Earnings"),
                     ),
                     verticalSpaceMedium,
-                    ElevatedButton(
-                      onPressed: () => AppRouter.pop(),
-                      child: const Text("Done"),
-                    ),
                   ],
-                );
-              },
-              error: (err, st) => const ErrorView(),
-              loading: () => const AppLoader(),
-            ),
-          ),
+                ),
+              ),
+            );
+          },
+          error: (err, st) => const ErrorView(),
+          loading: () => const AppLoader(),
         ),
       ),
     );
