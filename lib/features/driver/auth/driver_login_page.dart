@@ -29,57 +29,59 @@ class DriverLoginPage extends HookConsumerWidget {
       body: SafeArea(
         child: Form(
           key: formKey,
-          child: DefaultAppPadding(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                verticalSpaceMedium,
-                Center(
-                  child: Hero(
-                    tag: "logo",
-                    child: SvgPicture.asset(
-                      SvgPaths.icLogo,
-                      width: 200,
+          child: SingleChildScrollView(
+            child: DefaultAppPadding(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  verticalSpaceMedium,
+                  Center(
+                    child: Hero(
+                      tag: "logo",
+                      child: SvgPicture.asset(
+                        SvgPaths.icLogo,
+                        width: 200,
+                      ),
                     ),
                   ),
-                ),
-                verticalSpaceMedium,
-                Text(
-                  "Driver Login",
-                  style: textTheme(context).subtitle1,
-                  textAlign: TextAlign.center,
-                ),
-                verticalSpaceLarge,
-                Text(
-                  "Enter your login credentials",
-                  style: textTheme(context).subtitle1,
-                ),
-                verticalSpaceMedium,
-                TextFormField(
-                  controller: emailController,
-                  validator: AppUtils.emailValidate,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    hintText: "Enter your email",
-                    prefixIcon: Icon(Icons.email_outlined),
+                  verticalSpaceMedium,
+                  Text(
+                    "Driver Login",
+                    style: textTheme(context).subtitle1,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                verticalSpaceRegular,
-                PasswordTextField(
-                  controller: passwordController,
-                ),
-                verticalSpaceMedium,
-                ElevatedButton(
-                  onPressed: state.isLoading
-                      ? null
-                      : () {
-                          ref.read(authControllerProvider.notifier).login(
-                              email: emailController.text.trim(),
-                              password: passwordController.text.trim());
-                        },
-                  child: Text(state.isLoading ? 'Logging in' : 'Login'),
-                ),
-              ],
+                  verticalSpaceLarge,
+                  Text(
+                    "Enter your login credentials",
+                    style: textTheme(context).subtitle1,
+                  ),
+                  verticalSpaceMedium,
+                  TextFormField(
+                    controller: emailController,
+                    validator: AppUtils.emailValidate,
+                    decoration: const InputDecoration(
+                      labelText: "Email",
+                      hintText: "Enter your email",
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                  ),
+                  verticalSpaceRegular,
+                  PasswordTextField(
+                    controller: passwordController,
+                  ),
+                  verticalSpaceMedium,
+                  ElevatedButton(
+                    onPressed: state.isLoading
+                        ? null
+                        : () {
+                            ref.read(authControllerProvider.notifier).login(
+                                email: emailController.text.trim(),
+                                password: passwordController.text.trim());
+                          },
+                    child: Text(state.isLoading ? 'Logging in' : 'Login'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
