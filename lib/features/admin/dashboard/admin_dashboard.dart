@@ -5,6 +5,7 @@ import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/common_widgets/error_view.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
 import 'package:flux_mvp/features/common/providers/pending_payments_trips_proivder.dart';
+import 'package:flux_mvp/routing/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/constants/colors.dart';
@@ -116,42 +117,47 @@ class AdminDashboardPage extends HookConsumerWidget {
                             style: const TextStyle(color: Colors.grey),
                           ),
                           verticalSpaceSmall,
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: List.generate(
-                              trips.length,
-                              (index) {
-                                final trip = trips[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 12.0),
-                                  child: Row(
-                                    children: [
-                                      Text(trip.driverName!),
-                                      horizontalSpaceSmall,
-                                      Expanded(
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(50),
-                                          child: LinearProgressIndicator(
-                                            minHeight: 10,
-                                            color: Colors.red,
-                                            value: trip.amount! / maxAmount,
+                          if (trips.isEmpty)
+                            const Center(
+                              child: Text("We are all covered"),
+                            )
+                          else
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: List.generate(
+                                trips.length,
+                                (index) {
+                                  final trip = trips[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 12.0),
+                                    child: Row(
+                                      children: [
+                                        Text(trip.driverName!),
+                                        horizontalSpaceSmall,
+                                        Expanded(
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(50),
+                                            child: LinearProgressIndicator(
+                                              minHeight: 10,
+                                              color: Colors.red,
+                                              value: trip.amount! / maxAmount,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      horizontalSpaceSmall,
-                                      Text(
-                                        "\$${trip.amount!}",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
+                                        horizontalSpaceSmall,
+                                        Text(
+                                          "\$${trip.amount!}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     );
@@ -163,7 +169,9 @@ class AdminDashboardPage extends HookConsumerWidget {
                 const OngoingTripsContainer(),
                 verticalSpaceMedium,
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    AppRouter.navigateToPage(AppRoutes.adminAnalyticsPage);
+                  },
                   icon: const Icon(Icons.auto_graph_sharp),
                   label: const Text("View Analytics"),
                 ),
@@ -207,47 +215,52 @@ class OngoingTripsContainer extends HookConsumerWidget {
                 style: const TextStyle(color: Colors.grey),
               ),
               verticalSpaceSmall,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: List.generate(
-                  trips.length,
-                  (index) {
-                    final trip = trips[index];
-                    final hours =
-                        ((DateTime.now().difference(trip.start!).inSeconds /
-                            3600));
+              if (trips.isEmpty)
+                const Center(
+                  child: Text("We are all covered"),
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: List.generate(
+                    trips.length,
+                    (index) {
+                      final trip = trips[index];
+                      final hours =
+                          ((DateTime.now().difference(trip.start!).inSeconds /
+                              3600));
 
-                    final currentTripMiles = (hours * (74).abs().toDouble());
+                      final currentTripMiles = (hours * (74).abs().toDouble());
 
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: Row(
-                        children: [
-                          Text(trip.driverName!),
-                          horizontalSpaceSmall,
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(50),
-                              child: LinearProgressIndicator(
-                                minHeight: 10,
-                                color: kPrimaryColor,
-                                value: currentTripMiles / maxMiles,
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: Row(
+                          children: [
+                            Text(trip.driverName!),
+                            horizontalSpaceSmall,
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: LinearProgressIndicator(
+                                  minHeight: 10,
+                                  color: kPrimaryColor,
+                                  value: currentTripMiles / maxMiles,
+                                ),
                               ),
                             ),
-                          ),
-                          horizontalSpaceSmall,
-                          Text(
-                            "~${currentTripMiles.toStringAsFixed(2)} miles",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
+                            horizontalSpaceSmall,
+                            Text(
+                              "~${currentTripMiles.toStringAsFixed(2)} miles",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         );
