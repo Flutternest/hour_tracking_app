@@ -16,6 +16,7 @@ class FirebaseTripRepository implements TripRepository {
     final snapshot = await firestore
         .collection(path)
         .where('driver_id', isEqualTo: driverId)
+        .orderBy('date_created', descending: true)
         .get();
     final trips = snapshot.docs.map((e) => Trip.fromJson(e.data())).toList();
     return trips;
@@ -26,6 +27,7 @@ class FirebaseTripRepository implements TripRepository {
     final snapshot = firestore
         .collection(path)
         .where('driver_id', isEqualTo: driverId)
+        .orderBy('date_created', descending: true)
         .snapshots();
     final trips = snapshot
         .map((e) => e.docs.map((e) => Trip.fromJson(e.data())).toList());

@@ -12,6 +12,8 @@ import 'package:flux_mvp/core/services/pref_storage/pref_storage_provider.dart';
 import 'package:flux_mvp/core/services/pref_storage/shared_pref_storage_service.dart';
 import 'package:flux_mvp/core/utils/app_utils.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
+import 'package:flux_mvp/features/common/providers/driver_all_trips_provider.dart';
+import 'package:flux_mvp/features/common/providers/filtered_tips_provider.dart';
 import 'package:flux_mvp/features/driver/controllers/ongoing_trip.dart';
 import 'package:flux_mvp/routing/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -41,8 +43,7 @@ class DashboardPage extends HookConsumerWidget {
 
       timer.value = PausableTimer(const Duration(seconds: 1), () async {
         currentTimer.value++;
-        milesCovered.value =
-            (currentTimer.value / 3600) * (random.nextDoubleInRange(55, 74));
+        milesCovered.value = ((currentTimer.value / 3600) * (74)).abs();
 
         timer.value
           ?..reset()
@@ -92,7 +93,7 @@ class DashboardPage extends HookConsumerWidget {
 
             switch (trip?.tripStatus) {
               case "ongoing":
-                tripStatus = "Commute on going";
+                tripStatus = "Commute ongoing";
                 tripStatusColor = Colors.green;
                 // currentTimer.value =
                 //     DateTime.now().difference(trip!.start!).inSeconds;
@@ -287,6 +288,74 @@ class DashboardPage extends HookConsumerWidget {
                                   onPressed: stopTripAsync.isLoading
                                       ? null
                                       : () async {
+                                          final shouldEndTrip =
+                                              await showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title: Center(
+                                                        child: Column(
+                                                          children: const [
+                                                            Text("End Trip"),
+                                                            verticalSpaceRegular,
+                                                            Icon(
+                                                              Icons.warning,
+                                                              color:
+                                                                  Colors.orange,
+                                                              size: 70,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      content: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .stretch,
+                                                        children: [
+                                                          const Text(
+                                                              "Are you sure you want to end this trip?"),
+                                                          verticalSpaceRegular,
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  true);
+                                                            },
+                                                            style: ElevatedButton
+                                                                .styleFrom(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .red),
+                                                            child: const Text(
+                                                                "End Trip"),
+                                                          ),
+                                                          verticalSpaceSmall,
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  false);
+                                                            },
+                                                            style: ElevatedButton
+                                                                .styleFrom(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .grey),
+                                                            child: const Text(
+                                                                "No, continue driving"),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    );
+                                                  });
+
+                                          if (shouldEndTrip == null ||
+                                              !shouldEndTrip) {
+                                            return;
+                                          }
+
                                           ref
                                               .read(stopTripProvider.notifier)
                                               .stopTrip(
@@ -316,6 +385,10 @@ class DashboardPage extends HookConsumerWidget {
                                               prefs.remove(PrefKeys.timerCount),
                                             ]);
                                             ref.invalidate(onGoingTripProvider);
+                                            ref.invalidate(
+                                                driverAllTripsProvider);
+                                            ref.invalidate(
+                                                filteredTripsProvider);
                                             AppRouter.navigateToPage(
                                               AppRoutes.driverResultPage,
                                               arguments: trip.tripId,
