@@ -82,12 +82,20 @@ class FirebaseTripRepository implements TripRepository {
     required DateTime end,
     required double distanceInMiles,
     required double totalPayment,
+    required int timeDrivenInSeconds,
   }) {
     return firestore.collection(path).doc(tripId).update({
       'trip_status': 'completed',
       'end': end.toIso8601String(),
-      'payment': totalPayment,
+      'amount': totalPayment,
       'miles': distanceInMiles,
+      'time_driven_in_seconds': timeDrivenInSeconds,
     });
+  }
+
+  @override
+  Future<Trip> getTripDetails(String tripId) async {
+    final snapshot = await firestore.collection(path).doc(tripId).get();
+    return Trip.fromJson(snapshot.data()!);
   }
 }

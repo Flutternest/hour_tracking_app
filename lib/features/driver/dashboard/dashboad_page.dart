@@ -204,11 +204,11 @@ class DashboardPage extends HookConsumerWidget {
                                             driverName: cu.name,
                                             eldSerialId: cu.eldSerialId,
                                             start: DateTime.now(),
-                                            miles: random.nextDoubleInRange(
-                                                368, 1979),
+                                            miles: 0,
                                             paymentStatus: "pending",
                                             payPerMile: random
                                                 .nextDoubleInRange(2.47, 3.56),
+                                            timeDrivenInSeconds: 0,
                                           ),
                                         )
                                         .catchError((e) =>
@@ -286,16 +286,6 @@ class DashboardPage extends HookConsumerWidget {
                                   onPressed: stopTripAsync.isLoading
                                       ? null
                                       : () async {
-                                          currentTimer.value = 0;
-                                          timer.value?.cancel();
-                                          await Future.wait([
-                                            prefs.remove(
-                                                PrefKeys.timerLoggingDateTime),
-                                            prefs.remove(
-                                                PrefKeys.isTimerOnGoing),
-                                            prefs.remove(PrefKeys.timerCount),
-                                          ]);
-
                                           ref
                                               .read(stopTripProvider.notifier)
                                               .stopTrip(
@@ -304,18 +294,31 @@ class DashboardPage extends HookConsumerWidget {
                                                     .value
                                                     .toPrecision(2),
                                                 end: DateTime.now(),
-                                                totalPayment: (milesCovered
-                                                            .value
-                                                            .toPrecision(2) *
-                                                        (trip.payPerMile!))
-                                                    .toDouble(),
+                                                totalPayment:
+                                                    (milesCovered.value *
+                                                            (trip.payPerMile!))
+                                                        .toDouble()
+                                                        .toPrecision(1),
+                                                timeDrivenInSeconds:
+                                                    currentTimer.value,
                                               )
                                               .catchError((e) =>
                                                   showErrorSnackBar(context, e))
-                                              .then((_) {
+                                              .then((_) async {
+                                            currentTimer.value = 0;
+                                            timer.value?.cancel();
+                                            await Future.wait([
+                                              prefs.remove(PrefKeys
+                                                  .timerLoggingDateTime),
+                                              prefs.remove(
+                                                  PrefKeys.isTimerOnGoing),
+                                              prefs.remove(PrefKeys.timerCount),
+                                            ]);
                                             ref.invalidate(onGoingTripProvider);
                                             AppRouter.navigateToPage(
-                                                AppRoutes.driverResultPage);
+                                              AppRoutes.driverResultPage,
+                                              arguments: trip.tripId,
+                                            );
                                           });
                                         },
                                   style: ElevatedButton.styleFrom(
@@ -361,10 +364,10 @@ class DashboardPage extends HookConsumerWidget {
                                         Duration(seconds: currentTimer.value)),
                                   )),
                                 ]),
-                                const DataRow(cells: [
-                                  DataCell(Text("Time Paused")),
-                                  DataCell(Text("00:00:00")),
-                                ]),
+                                // const DataRow(cells: [
+                                //   DataCell(Text("Time Paused")),
+                                //   DataCell(Text("00:00:00")),
+                                // ]),
                                 DataRow(cells: [
                                   const DataCell(Text("Miles Covered")),
                                   DataCell(Text(

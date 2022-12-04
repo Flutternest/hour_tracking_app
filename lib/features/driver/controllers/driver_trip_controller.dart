@@ -59,6 +59,7 @@ class StopTripState extends AppStateNotifier {
     required DateTime end,
     required double distanceInMiles,
     required double totalPayment,
+    required int timeDrivenInSeconds,
   }) async {
     return stateCallback(
       () async {
@@ -67,6 +68,7 @@ class StopTripState extends AppStateNotifier {
               end: end,
               distanceInMiles: distanceInMiles,
               totalPayment: totalPayment,
+              timeDrivenInSeconds: timeDrivenInSeconds,
             );
       },
     );
