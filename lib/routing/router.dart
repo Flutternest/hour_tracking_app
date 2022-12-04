@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flux_mvp/auth/auth_widget.dart';
 import 'package:flux_mvp/features/admin/auth/admin_login_page.dart';
 import 'package:flux_mvp/features/admin/dashboard/admin_dashboard.dart';
+import 'package:flux_mvp/features/admin/settings/add_driver_page.dart';
 import 'package:flux_mvp/features/admin/settings/analytics_page.dart';
 import 'package:flux_mvp/features/admin/settings/drivers_page.dart';
 import 'package:flux_mvp/features/driver/auth/driver_login_page.dart';
@@ -25,6 +26,7 @@ class AppRoutes {
   static const adminDashboardPage = '/admin-dashboard-page';
   static const adminAnalyticsPage = '/admin-analytics-page';
   static const adminDriversPage = '/admin-drivers-page';
+  static const adminAddDriversPage = '/admin-add-drivers-page';
 
   //driver flow
   static const driverLoginPage = '/driver-login-page';
@@ -117,6 +119,12 @@ class AppRouter {
       case AppRoutes.adminDriversPage:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const AdminDriversPage(),
+          settings: settings,
+          fullscreenDialog: false,
+        );
+      case AppRoutes.adminAddDriversPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => const AddDriverPage(),
           settings: settings,
           fullscreenDialog: false,
         );

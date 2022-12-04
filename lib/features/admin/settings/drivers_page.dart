@@ -3,6 +3,7 @@ import 'package:flux_mvp/core/common_widgets/app_loader.dart';
 import 'package:flux_mvp/core/common_widgets/error_view.dart';
 import 'package:flux_mvp/core/constants/colors.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
+import 'package:flux_mvp/routing/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../common/providers/all_drivers_provider.dart';
@@ -18,7 +19,9 @@ class AdminDriversPage extends HookConsumerWidget {
         title: const Text('Drivers'),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          AppRouter.navigateToPage(AppRoutes.adminAddDriversPage);
+        },
         backgroundColor: kPrimaryColor,
         child: const Icon(Icons.add),
       ),
