@@ -39,7 +39,7 @@ class AuthController extends AppStateNotifier {
 
       if (user.type == "admin") {
         await prefs.set(PrefKeys.loginType, Configs.adminLoginType);
-        AppRouter.navigateAndRemoveUntil(AppRoutes.driverDashboardPage);
+        AppRouter.navigateAndRemoveUntil(AppRoutes.adminDashboardPage);
       } else {
         await prefs.set(PrefKeys.loginType, Configs.driverLoginType);
         AppRouter.navigateAndRemoveUntil(AppRoutes.driverDashboardPage);

@@ -34,16 +34,16 @@ class WelcomePage extends StatelessWidget {
             ),
             verticalSpaceSemiLarge,
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                AppRouter.navigateToPage(AppRoutes.adminLoginPage);
+              },
               child: const Text('Admin Login'),
             ),
             verticalSpaceRegular,
             Row(
               children: [
-                Expanded(
-                  child: Divider(
-                    color: Theme.of(context).primaryColor,
-                  ),
+                const Expanded(
+                  child: Divider(color: Colors.grey),
                 ),
                 horizontalSpaceRegular,
                 Text(
@@ -51,10 +51,8 @@ class WelcomePage extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
                 horizontalSpaceRegular,
-                Expanded(
-                  child: Divider(
-                    color: Theme.of(context).primaryColor,
-                  ),
+                const Expanded(
+                  child: Divider(color: Colors.grey),
                 ),
               ],
             ),
