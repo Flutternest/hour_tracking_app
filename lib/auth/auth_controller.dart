@@ -35,11 +35,13 @@ class AuthController extends AppStateNotifier {
 
       await prefs.set(PrefKeys.isLoggedIn, true);
 
+      await prefs.set(PrefKeys.userDetails, jsonEncode(user.toJson()));
+
       if (user.type == "admin") {
         await prefs.set(PrefKeys.loginType, Configs.adminLoginType);
+        AppRouter.navigateAndRemoveUntil(AppRoutes.driverDashboardPage);
       } else {
         await prefs.set(PrefKeys.loginType, Configs.driverLoginType);
-        await prefs.set(PrefKeys.userDetails, jsonEncode(user.toJson()));
         AppRouter.navigateAndRemoveUntil(AppRoutes.driverDashboardPage);
       }
     });
