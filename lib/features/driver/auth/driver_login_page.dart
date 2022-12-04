@@ -74,9 +74,11 @@ class DriverLoginPage extends HookConsumerWidget {
                     onPressed: state.isLoading
                         ? null
                         : () {
-                            ref.read(authControllerProvider.notifier).login(
-                                email: emailController.text.trim(),
-                                password: passwordController.text.trim());
+                            if (formKey.currentState!.validate()) {
+                              ref.read(authControllerProvider.notifier).login(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim());
+                            }
                           },
                     child: Text(state.isLoading ? 'Logging in' : 'Login'),
                   ),
