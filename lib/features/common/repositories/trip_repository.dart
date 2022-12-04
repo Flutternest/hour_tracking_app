@@ -44,4 +44,5 @@ abstract class TripRepository {
   Stream<List<Trip>> getAllTripsWithPendingPaymentStream();
 
   Future<List<AuthUser>> getAllDrivers();
+  Future<void> updateDriver(String driverId, AuthUser driver);
 }

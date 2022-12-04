@@ -165,4 +165,9 @@ class FirebaseTripRepository implements TripRepository {
         .toList();
     return drivers;
   }
+
+  @override
+  Future<void> updateDriver(String driverId, AuthUser driver) {
+    return firestore.collection('users').doc(driverId).update(driver.toJson());
+  }
 }
