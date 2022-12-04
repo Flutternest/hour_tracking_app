@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flux_mvp/auth/models/auth_user.dart';
 import 'package:flux_mvp/core/common_widgets/app_loader.dart';
 import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/common_widgets/error_view.dart';
@@ -8,18 +9,12 @@ import 'package:flux_mvp/core/utils/ui_helper.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/common_widgets/analytics_item.dart';
-import '../../../global_providers.dart';
+import '../../common/providers/all_drivers_provider.dart';
 import '../../common/providers/filtered_tips_provider.dart';
+import '../../driver/settings/analytics_page.dart';
 
-class AnalyticsFilter {
-  final String filterName;
-  final FilterType filterType;
-
-  AnalyticsFilter({required this.filterName, required this.filterType});
-}
-
-class DriverAnalyticsPage extends HookConsumerWidget {
-  const DriverAnalyticsPage({super.key});
+class AdminAnalyticsPage extends HookConsumerWidget {
+  const AdminAnalyticsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,8 +26,9 @@ class DriverAnalyticsPage extends HookConsumerWidget {
       ],
     );
 
-    final filteredTripsAsync = ref
-        .watch(filteredTripsProvider(ref.read(currentUserProvider)!.driverId!));
+    final driverId = useState<String?>(null);
+    final filteredTripsAsync = ref.watch(filteredTripsProvider(driverId.value));
+    final allDriversAsync = ref.watch(allDriversProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +37,45 @@ class DriverAnalyticsPage extends HookConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            verticalSpaceMedium,
+            DefaultAppPadding.horizontal(
+              child: Row(
+                children: [
+                  Text(
+                    "Driver:",
+                    style: textTheme(context).subtitle1,
+                  ),
+                  horizontalSpaceSmall,
+                  Expanded(
+                    child: allDriversAsync.when(
+                      data: (data) {
+                        data = [
+                          ...data,
+                          const AuthUser(driverId: null, name: "All")
+                        ];
+                        return DropdownButton<String>(
+                          value: driverId.value,
+                          items: data
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e.driverId,
+                                  child: Text(e.name!),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) => driverId.value = value,
+                          isExpanded: true,
+                        );
+                      },
+                      error: (err, st) => const SizedBox.shrink(),
+                      loading: () => const AppLoader(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             verticalSpaceMedium,
             Container(
               color: kDarkBackground,

@@ -1,3 +1,4 @@
+import 'package:flux_mvp/auth/models/auth_user.dart';
 import 'package:flux_mvp/global_providers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -15,7 +16,7 @@ final tripRepositoryProvider = Provider<TripRepository>(
 abstract class TripRepository {
   String get path;
 
-  Future<List<Trip>> getAllTrips(String driverId);
+  Future<List<Trip>> getAllTrips(String? driverId);
   Future<Stream<List<Trip>>> getAllTripsStream(String driverId);
 
   // Returns null if there's no ongoing trip for the driver
@@ -41,4 +42,6 @@ abstract class TripRepository {
 
   Future<List<Trip>> getAllTripsWithPendingPayment();
   Stream<List<Trip>> getAllTripsWithPendingPaymentStream();
+
+  Future<List<AuthUser>> getAllDrivers();
 }

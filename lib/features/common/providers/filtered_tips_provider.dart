@@ -10,8 +10,7 @@ enum FilterType {
 final filterTypeProvider = StateProvider<FilterType>((ref) => FilterType.all);
 
 final filteredTripsProvider =
-    FutureProvider.family((ref, String driverId) async {
-  // obtains both the filter and the list of todos
+    FutureProvider.family((ref, String? driverId) async {
   final FilterType filter = ref.watch(filterTypeProvider);
   final trips = await ref.watch(driverAllTripsProvider(driverId).future);
 

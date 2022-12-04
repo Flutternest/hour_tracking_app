@@ -9,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../common/providers/all_ongoing_trips_provider.dart';
+import '../widgets/side_menu.dart';
 
 class AdminDashboardPage extends HookConsumerWidget {
   const AdminDashboardPage({super.key});
@@ -24,6 +25,7 @@ class AdminDashboardPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
       ),
+      drawer: const AdminDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: DefaultAppPadding(

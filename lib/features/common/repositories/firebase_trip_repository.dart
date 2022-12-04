@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flux_mvp/auth/models/auth_user.dart';
 import 'package:flux_mvp/features/common/repositories/trip_repository.dart';
 
 import '../providers/trip.dart';
@@ -12,12 +13,16 @@ class FirebaseTripRepository implements TripRepository {
   String get path => 'trips';
 
   @override
-  Future<List<Trip>> getAllTrips(String driverId) async {
-    final snapshot = await firestore
-        .collection(path)
-        .where('driver_id', isEqualTo: driverId)
-        .orderBy('date_created', descending: true)
-        .get();
+  Future<List<Trip>> getAllTrips(String? driverId) async {
+    Query<Map<String, dynamic>> query = firestore.collection(path);
+
+    if (driverId != null) {
+      query = query.where('driver_id', isEqualTo: driverId);
+    }
+
+    final snapshot =
+        await query.orderBy('date_created', descending: true).get();
+
     final trips = snapshot.docs.map((e) => Trip.fromJson(e.data())).toList();
     return trips;
   }
@@ -149,5 +154,15 @@ class FirebaseTripRepository implements TripRepository {
     final trips = snapshot
         .map((e) => e.docs.map((e) => Trip.fromJson(e.data())).toList());
     return trips;
+  }
+
+  @override
+  Future<List<AuthUser>> getAllDrivers() async {
+    final snapshot = await firestore.collection('users').get();
+    final drivers = snapshot.docs
+        .map((e) => AuthUser.fromJson(e.data()))
+        .where((element) => element.type == "driver")
+        .toList();
+    return drivers;
   }
 }
