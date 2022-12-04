@@ -43,7 +43,8 @@ class DashboardPage extends HookConsumerWidget {
 
       timer.value = PausableTimer(const Duration(seconds: 1), () async {
         currentTimer.value++;
-        milesCovered.value = ((currentTimer.value / 3600) * (74)).abs();
+        final randomSpeed = random.nextDoubleInRange(45, 75); //miles per hour
+        milesCovered.value += randomSpeed / 3600;
 
         timer.value
           ?..reset()
