@@ -6,6 +6,7 @@ import 'package:flux_mvp/auth/auth_controller.dart';
 import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/common_widgets/error_view.dart';
 import 'package:flux_mvp/core/constants/paths.dart';
+import 'package:flux_mvp/core/extensions/double_extension.dart';
 import 'package:flux_mvp/core/extensions/random_extension.dart';
 import 'package:flux_mvp/core/services/pref_storage/pref_storage_provider.dart';
 import 'package:flux_mvp/core/services/pref_storage/shared_pref_storage_service.dart';
@@ -33,12 +34,16 @@ class DashboardPage extends HookConsumerWidget {
     final timer = useRef<PausableTimer?>(null);
     final prefs = ref.watch(prefsStorageServiceProvider);
     final random = useMemoized(() => Random());
+    final milesCovered = useState(0.0);
 
     final initiateTimer = useCallback(() {
       if (!(timer.value?.isCancelled ?? true)) return;
 
       timer.value = PausableTimer(const Duration(seconds: 1), () async {
         currentTimer.value++;
+        milesCovered.value =
+            (currentTimer.value / 3600) * (random.nextDoubleInRange(55, 74));
+
         timer.value
           ?..reset()
           ..start();
@@ -293,7 +298,18 @@ class DashboardPage extends HookConsumerWidget {
 
                                           ref
                                               .read(stopTripProvider.notifier)
-                                              .stopTrip(trip.tripId.toString())
+                                              .stopTrip(
+                                                trip.tripId.toString(),
+                                                distanceInMiles: milesCovered
+                                                    .value
+                                                    .toPrecision(2),
+                                                end: DateTime.now(),
+                                                totalPayment: (milesCovered
+                                                            .value
+                                                            .toPrecision(2) *
+                                                        (trip.payPerMile!))
+                                                    .toDouble(),
+                                              )
                                               .catchError((e) =>
                                                   showErrorSnackBar(context, e))
                                               .then((_) {
@@ -338,17 +354,22 @@ class DashboardPage extends HookConsumerWidget {
                                 DataColumn(label: Text("Value")),
                               ],
                               rows: [
-                                const DataRow(cells: [
-                                  DataCell(Text("Time Driven")),
-                                  DataCell(Text("00:00:00")),
+                                DataRow(cells: [
+                                  const DataCell(Text("Time Driven")),
+                                  DataCell(Text(
+                                    AppUtils.formatTimer(
+                                        Duration(seconds: currentTimer.value)),
+                                  )),
                                 ]),
                                 const DataRow(cells: [
                                   DataCell(Text("Time Paused")),
                                   DataCell(Text("00:00:00")),
                                 ]),
-                                const DataRow(cells: [
-                                  DataCell(Text("Miles Covered")),
-                                  DataCell(Text("0.0")),
+                                DataRow(cells: [
+                                  const DataCell(Text("Miles Covered")),
+                                  DataCell(Text(
+                                    milesCovered.value.toStringAsFixed(2),
+                                  )),
                                 ]),
                                 DataRow(cells: [
                                   const DataCell(Text("Pay/Mile")),

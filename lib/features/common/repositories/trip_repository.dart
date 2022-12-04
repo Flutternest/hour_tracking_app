@@ -24,7 +24,12 @@ abstract class TripRepository {
   Future<void> createTrip(Trip trip, {required String tripId});
   Future<void> pauseTrip(String tripId);
   Future<void> resumeTrip(String tripId);
-  Future<void> stopTrip(String tripId);
+  Future<void> stopTrip(
+    String tripId, {
+    required DateTime end,
+    required double distanceInMiles,
+    required double totalPayment,
+  });
 
   Future<int> lastTripIdUsed();
 }

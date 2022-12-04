@@ -54,9 +54,21 @@ final stopTripProvider =
 class StopTripState extends AppStateNotifier {
   StopTripState(super.ref);
 
-  Future<void> stopTrip(String tripId) async {
-    return stateCallback(() async {
-      ref.read(tripRepositoryProvider).stopTrip(tripId);
-    });
+  Future<void> stopTrip(
+    String tripId, {
+    required DateTime end,
+    required double distanceInMiles,
+    required double totalPayment,
+  }) async {
+    return stateCallback(
+      () async {
+        await ref.read(tripRepositoryProvider).stopTrip(
+              tripId,
+              end: end,
+              distanceInMiles: distanceInMiles,
+              totalPayment: totalPayment,
+            );
+      },
+    );
   }
 }

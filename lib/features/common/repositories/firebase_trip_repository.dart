@@ -44,14 +44,16 @@ class FirebaseTripRepository implements TripRepository {
 
   @override
   Future<void> createTrip(Trip trip, {required String tripId}) {
-    return firestore.collection(path).doc(tripId).set(trip.toJson());
+    final tripData = trip.toJson();
+    tripData.addAll({"date_created": FieldValue.serverTimestamp()});
+    return firestore.collection(path).doc(tripId).set(tripData);
   }
 
   @override
   Future<int> lastTripIdUsed() async {
     final snapshot = await firestore
         .collection(path)
-        .orderBy("start", descending: true)
+        .orderBy("date_created", descending: true)
         .limit(1)
         .get();
     if (snapshot.docs.isEmpty) return 0;
@@ -75,9 +77,17 @@ class FirebaseTripRepository implements TripRepository {
   }
 
   @override
-  Future<void> stopTrip(String tripId) {
+  Future<void> stopTrip(
+    String tripId, {
+    required DateTime end,
+    required double distanceInMiles,
+    required double totalPayment,
+  }) {
     return firestore.collection(path).doc(tripId).update({
       'trip_status': 'completed',
+      'end': end.toIso8601String(),
+      'payment': totalPayment,
+      'miles': distanceInMiles,
     });
   }
 }
