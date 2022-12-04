@@ -143,4 +143,14 @@ class AppUtils {
       return chars[indexRandom];
     }).join('');
   }
+
+  static String formatTimer(Duration d) {
+    final minutes = _pad2(d.inMinutes);
+    final seconds = _pad2(d.inSeconds % 60);
+    final hours = _pad2(d.inHours);
+
+    return '$hours:$minutes:$seconds';
+  }
+
+  static String _pad2(int i) => i.toString().padLeft(2, '0');
 }

@@ -49,8 +49,11 @@ class FirebaseTripRepository implements TripRepository {
 
   @override
   Future<int> lastTripIdUsed() async {
-    final snapshot =
-        await firestore.collection(path).orderBy("start").limit(1).get();
+    final snapshot = await firestore
+        .collection(path)
+        .orderBy("start", descending: true)
+        .limit(1)
+        .get();
     if (snapshot.docs.isEmpty) return 0;
     final lastTrip = snapshot.docs.first;
     final lastTripId = lastTrip.data()['trip_id'];

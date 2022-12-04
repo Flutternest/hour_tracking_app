@@ -11,6 +11,7 @@ class Trip extends Equatable {
   final String? tripStatus;
   final String? paymentStatus;
   final int? tripId;
+  final num? payPerMile;
 
   const Trip({
     this.amount,
@@ -23,6 +24,7 @@ class Trip extends Equatable {
     this.tripStatus,
     this.paymentStatus,
     this.tripId,
+    this.payPerMile,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) => Trip(
@@ -38,6 +40,7 @@ class Trip extends Equatable {
         tripStatus: json['trip_status'] as String?,
         paymentStatus: json['payment_status'] as String?,
         tripId: json['trip_id'] as int?,
+        payPerMile: (json['pay_per_mile']) as num?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -51,20 +54,21 @@ class Trip extends Equatable {
         'trip_status': tripStatus,
         'payment_status': paymentStatus,
         'trip_id': tripId,
+        'pay_per_mile': payPerMile,
       };
 
-  Trip copyWith({
-    double? amount,
-    String? driverId,
-    String? driverName,
-    String? eldSerialId,
-    DateTime? start,
-    DateTime? end,
-    double? miles,
-    String? tripStatus,
-    String? paymentStatus,
-    int? tripId,
-  }) {
+  Trip copyWith(
+      {double? amount,
+      String? driverId,
+      String? driverName,
+      String? eldSerialId,
+      DateTime? start,
+      DateTime? end,
+      double? miles,
+      String? tripStatus,
+      String? paymentStatus,
+      int? tripId,
+      num? payPerMile}) {
     return Trip(
       amount: amount ?? this.amount,
       driverId: driverId ?? this.driverId,
@@ -76,6 +80,7 @@ class Trip extends Equatable {
       tripStatus: tripStatus ?? this.tripStatus,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       tripId: tripId ?? this.tripId,
+      payPerMile: payPerMile ?? this.payPerMile,
     );
   }
 
@@ -95,6 +100,7 @@ class Trip extends Equatable {
       tripStatus,
       paymentStatus,
       tripId,
+      payPerMile,
     ];
   }
 }

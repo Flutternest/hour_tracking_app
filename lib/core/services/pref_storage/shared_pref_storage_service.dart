@@ -7,6 +7,10 @@ class PrefKeys {
   static const String isLoggedIn = 'isLoggedIn';
   static const String loginType = 'loginType';
   static const String userDetails = 'userDetails';
+  static const String timerCount = 'timerCount';
+  static const String timerLoggingDateTime = 'timerLoggingDateTime';
+
+  static const String isTimerOnGoing = "isOnGoingTrip";
 }
 
 class SharedPrefService implements StorageService {

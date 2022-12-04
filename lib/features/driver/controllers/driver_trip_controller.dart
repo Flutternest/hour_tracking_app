@@ -12,26 +12,14 @@ final createTripProvider =
 class CreateTripState extends AppStateNotifier {
   CreateTripState(super.ref);
 
-  Future<void> createTrip() async {
+  Future<void> createTrip(Trip trip) async {
     return stateCallback(
       () async {
         final lastId = await ref.read(tripRepositoryProvider).lastTripIdUsed();
 
         ref.read(tripRepositoryProvider).createTrip(
-              Trip(
-                tripStatus: "ongoing",
-                driverId: "1",
-                amount: 0,
-                driverName: "John Doe",
-                eldSerialId: "123123",
-                start: DateTime.now(),
-                end: DateTime.now(),
-                miles: 200,
-                paymentStatus: "pending",
-                tripId: lastId + 1,
-              ),
-              tripId: (lastId + 1).toString(),
-            );
+            trip.copyWith(tripId: lastId + 1),
+            tripId: (lastId + 1).toString());
       },
     );
   }

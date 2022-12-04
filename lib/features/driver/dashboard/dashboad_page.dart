@@ -1,11 +1,19 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/common_widgets/error_view.dart';
 import 'package:flux_mvp/core/constants/paths.dart';
+import 'package:flux_mvp/core/extensions/random_extension.dart';
+import 'package:flux_mvp/core/services/pref_storage/pref_storage_provider.dart';
+import 'package:flux_mvp/core/services/pref_storage/shared_pref_storage_service.dart';
+import 'package:flux_mvp/core/utils/app_utils.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
 import 'package:flux_mvp/features/driver/controllers/ongoing_trip.dart';
 import 'package:flux_mvp/routing/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pausable_timer/pausable_timer.dart';
 
 import '../../../core/common_widgets/app_loader.dart';
 import '../../../core/constants/colors.dart';
@@ -19,37 +27,84 @@ class DashboardPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ongoingTripAsync = ref.watch(onGoingTripProvider);
+    final currentTimer = useState(0);
+    final timer = useRef<PausableTimer?>(null);
+    final prefs = ref.watch(prefsStorageServiceProvider);
+    final random = useMemoized(() => Random());
+
+    final initiateTimer = useCallback(() {
+      if (!(timer.value?.isCancelled ?? true)) return;
+
+      timer.value = PausableTimer(const Duration(seconds: 1), () async {
+        currentTimer.value++;
+        timer.value
+          ?..reset()
+          ..start();
+
+        await prefs.set(PrefKeys.timerCount, currentTimer.value);
+        await prefs.set(
+          PrefKeys.timerLoggingDateTime,
+          DateTime.now().toIso8601String(),
+        );
+      });
+    }, []);
+
+    useEffect(() {
+      currentTimer.value = prefs.get(PrefKeys.timerCount) ?? 0;
+      final timerLoggingDateTime = prefs.get(PrefKeys.timerLoggingDateTime);
+      if (timerLoggingDateTime != null) {
+        final difference =
+            DateTime.now().difference(DateTime.parse(timerLoggingDateTime));
+        currentTimer.value += difference.inSeconds;
+      }
+
+      initiateTimer.call();
+
+      final isOnGoing = prefs.get(PrefKeys.isTimerOnGoing) ?? false;
+      if (isOnGoing) {
+        timer.value?.start();
+      }
+
+      return () {
+        timer.value?.cancel();
+      };
+    }, []);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Dashboard"),
       ),
       drawer: const DriverDrawer(),
       body: SafeArea(
-        child: DefaultAppPadding.horizontal(
-          child: ongoingTripAsync.when(
-            data: (Trip? trip) {
-              final isTripOnGoing = trip != null;
-              bool isPaused = false;
-              String tripStatus = "";
-              Color tripStatusColor = Colors.green;
+        child: ongoingTripAsync.when(
+          data: (Trip? trip) {
+            final isTripOnGoing = trip != null;
+            bool isPaused = false;
+            String tripStatus = "";
+            Color tripStatusColor = Colors.green;
 
-              switch (trip?.tripStatus) {
-                case "ongoing":
-                  tripStatus = "Commute on going";
-                  tripStatusColor = Colors.green;
-                  break;
-                case "paused":
-                  isPaused = true;
-                  tripStatus = "Commute paused";
-                  tripStatusColor = Colors.orange;
-                  break;
-                default:
-                  tripStatus = "Commute not started";
-                  tripStatusColor = Colors.red;
-                  break;
-              }
+            switch (trip?.tripStatus) {
+              case "ongoing":
+                tripStatus = "Commute on going";
+                tripStatusColor = Colors.green;
+                // currentTimer.value =
+                //     DateTime.now().difference(trip!.start!).inSeconds;
+                break;
+              case "paused":
+                isPaused = true;
+                tripStatus = "Commute paused";
+                tripStatusColor = Colors.orange;
+                // currentTimer.value =
+                //     DateTime.now().difference(trip!.start!).inSeconds;
+                break;
+              default:
+                tripStatus = "Commute not started";
+                tripStatusColor = Colors.red;
+                break;
+            }
 
-              return SingleChildScrollView(
+            return SingleChildScrollView(
+              child: DefaultAppPadding.horizontal(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -67,7 +122,8 @@ class DashboardPage extends HookConsumerWidget {
                             children: [
                               verticalSpaceMedium,
                               Text(
-                                "00:00:00",
+                                AppUtils.formatTimer(
+                                    Duration(seconds: currentTimer.value)),
                                 style: textTheme(context).headlineMedium,
                               ),
                               Text(
@@ -113,15 +169,37 @@ class DashboardPage extends HookConsumerWidget {
                           return ElevatedButton(
                             onPressed: createTripAsync.isLoading
                                 ? null
-                                : () async => ref
-                                    .read(createTripProvider.notifier)
-                                    .createTrip()
-                                    .catchError(
-                                        (e) => showErrorSnackBar(context, e))
-                                    .then(
-                                      (_) =>
-                                          ref.invalidate(onGoingTripProvider),
-                                    ),
+                                : () async {
+                                    initiateTimer();
+                                    await prefs.set(
+                                        PrefKeys.isTimerOnGoing, true);
+                                    await prefs
+                                        .remove(PrefKeys.timerLoggingDateTime);
+                                    timer.value?.start();
+                                    return ref
+                                        .read(createTripProvider.notifier)
+                                        .createTrip(
+                                          Trip(
+                                            tripStatus: "ongoing",
+                                            driverId: "1",
+                                            amount: 0,
+                                            driverName: "John Doe",
+                                            eldSerialId: "123123",
+                                            start: DateTime.now(),
+                                            miles: random.nextDoubleInRange(
+                                                368, 1979),
+                                            paymentStatus: "pending",
+                                            payPerMile: random
+                                                .nextDoubleInRange(2.47, 3.56),
+                                          ),
+                                        )
+                                        .catchError((e) =>
+                                            showErrorSnackBar(context, e))
+                                        .then(
+                                          (_) => ref
+                                              .invalidate(onGoingTripProvider),
+                                        );
+                                  },
                             child: const Text("Start Driving"),
                           );
                         },
@@ -141,6 +219,9 @@ class DashboardPage extends HookConsumerWidget {
                                       ? null
                                       : () async {
                                           if (isPaused) {
+                                            timer.value?.start();
+                                            prefs.set(
+                                                PrefKeys.isTimerOnGoing, true);
                                             ref
                                                 .read(
                                                     pauseTripProvider.notifier)
@@ -153,6 +234,11 @@ class DashboardPage extends HookConsumerWidget {
                                                     onGoingTripProvider));
                                             return;
                                           }
+                                          timer.value?.pause();
+                                          prefs.set(
+                                              PrefKeys.isTimerOnGoing, false);
+                                          prefs.remove(
+                                              PrefKeys.timerLoggingDateTime);
                                           ref
                                               .read(pauseTripProvider.notifier)
                                               .pauseTrip(trip.tripId.toString())
@@ -182,6 +268,16 @@ class DashboardPage extends HookConsumerWidget {
                                   onPressed: stopTripAsync.isLoading
                                       ? null
                                       : () async {
+                                          currentTimer.value = 0;
+                                          timer.value?.cancel();
+                                          await Future.wait([
+                                            prefs.remove(
+                                                PrefKeys.timerLoggingDateTime),
+                                            prefs.remove(
+                                                PrefKeys.isTimerOnGoing),
+                                            prefs.remove(PrefKeys.timerCount),
+                                          ]);
+
                                           ref
                                               .read(stopTripProvider.notifier)
                                               .stopTrip(trip.tripId.toString())
@@ -204,58 +300,60 @@ class DashboardPage extends HookConsumerWidget {
                         ],
                       ),
                     ],
-                    verticalSpaceMedium,
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: kOverlayDarkBackground,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            "Log Details",
-                            style: textTheme(context)
-                                .titleMedium!
-                                .copyWith(fontWeight: FontWeight.w700),
-                          ),
-                          verticalSpaceRegular,
-                          DataTable(
-                            headingRowHeight: 0,
-                            columns: const [
-                              DataColumn(label: Text("Type,")),
-                              DataColumn(label: Text("Value")),
-                            ],
-                            rows: const [
-                              DataRow(cells: [
-                                DataCell(Text("Time Driven")),
-                                DataCell(Text("00:00:00")),
-                              ]),
-                              DataRow(cells: [
-                                DataCell(Text("Time Paused")),
-                                DataCell(Text("00:00:00")),
-                              ]),
-                              DataRow(cells: [
-                                DataCell(Text("Miles Covered")),
-                                DataCell(Text("0.0")),
-                              ]),
-                              DataRow(cells: [
-                                DataCell(Text("Pay/Mile")),
-                                DataCell(Text("\$0.0")),
-                              ]),
-                            ],
-                          ),
-                        ],
-                      ),
-                    )
+                    if (isTripOnGoing) ...[
+                      verticalSpaceMedium,
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: kOverlayDarkBackground,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              "Log Details",
+                              style: textTheme(context)
+                                  .titleMedium!
+                                  .copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            verticalSpaceRegular,
+                            DataTable(
+                              headingRowHeight: 0,
+                              columns: const [
+                                DataColumn(label: Text("Type,")),
+                                DataColumn(label: Text("Value")),
+                              ],
+                              rows: [
+                                const DataRow(cells: [
+                                  DataCell(Text("Time Driven")),
+                                  DataCell(Text("00:00:00")),
+                                ]),
+                                const DataRow(cells: [
+                                  DataCell(Text("Time Paused")),
+                                  DataCell(Text("00:00:00")),
+                                ]),
+                                const DataRow(cells: [
+                                  DataCell(Text("Miles Covered")),
+                                  DataCell(Text("0.0")),
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Pay/Mile")),
+                                  DataCell(Text("\$${trip.payPerMile}")),
+                                ]),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
                   ],
                 ),
-              );
-            },
-            error: (err, st) => const ErrorView(),
-            loading: () => const AppLoader(),
-          ),
+              ),
+            );
+          },
+          error: (err, st) => const ErrorView(),
+          loading: () => const AppLoader(),
         ),
       ),
     );
