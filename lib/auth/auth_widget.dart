@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flux_mvp/features/admin/dashboard/admin_dashboard.dart';
 import 'package:flux_mvp/features/driver/dashboard/dashboad_page.dart';
 import 'package:flux_mvp/features/welcome_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -19,7 +20,7 @@ class AuthWidget extends HookConsumerWidget {
       case null:
         return const WelcomePage();
       case Configs.adminLoginType:
-        return const DashboardPage();
+        return const AdminDashboardPage();
       case Configs.driverLoginType:
         return const DashboardPage();
       default:

@@ -100,4 +100,54 @@ class FirebaseTripRepository implements TripRepository {
     final snapshot = await firestore.collection(path).doc(tripId).get();
     return Trip.fromJson(snapshot.data()!);
   }
+
+  @override
+  Future<List<Trip>> getAllOngoingTrips() async {
+    final snapshot = await firestore
+        .collection(path)
+        .where('trip_status', isEqualTo: "ongoing")
+        .orderBy('date_created', descending: true)
+        .get();
+
+    final trips = snapshot.docs.map((e) => Trip.fromJson(e.data())).toList();
+    return trips;
+  }
+
+  @override
+  Future<List<Trip>> getAllTripsWithPendingPayment() async {
+    final snapshot = await firestore
+        .collection(path)
+        .where('payment_status', isEqualTo: "pending")
+        .orderBy('date_created', descending: true)
+        .get();
+
+    final trips = snapshot.docs.map((e) => Trip.fromJson(e.data())).toList();
+    return trips;
+  }
+
+  @override
+  Stream<List<Trip>> getAllOngoingTripsStream() {
+    final snapshot = firestore
+        .collection(path)
+        .where('trip_status', isEqualTo: "ongoing")
+        .orderBy('date_created', descending: true)
+        .snapshots();
+
+    final trips = snapshot
+        .map((e) => e.docs.map((e) => Trip.fromJson(e.data())).toList());
+    return trips;
+  }
+
+  @override
+  Stream<List<Trip>> getAllTripsWithPendingPaymentStream() {
+    final snapshot = firestore
+        .collection(path)
+        .where('payment_status', isEqualTo: "pending")
+        .orderBy('date_created', descending: true)
+        .snapshots();
+
+    final trips = snapshot
+        .map((e) => e.docs.map((e) => Trip.fromJson(e.data())).toList());
+    return trips;
+  }
 }

@@ -35,4 +35,10 @@ abstract class TripRepository {
   });
 
   Future<int> lastTripIdUsed();
+
+  Future<List<Trip>> getAllOngoingTrips();
+  Stream<List<Trip>> getAllOngoingTripsStream();
+
+  Future<List<Trip>> getAllTripsWithPendingPayment();
+  Stream<List<Trip>> getAllTripsWithPendingPaymentStream();
 }
