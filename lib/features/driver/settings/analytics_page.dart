@@ -1,20 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flux_mvp/core/common_widgets/app_loader.dart';
 import 'package:flux_mvp/core/common_widgets/app_padding.dart';
+import 'package:flux_mvp/core/common_widgets/error_view.dart';
 import 'package:flux_mvp/core/constants/colors.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
+import 'package:flux_mvp/global_providers.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class DriverAnalyticsPage extends StatelessWidget {
+import '../../common/providers/filtered_tips_provider.dart';
+import '../../common/providers/trip.dart';
+
+class AnalyticsFilter {
+  final String filterName;
+  final FilterType filterType;
+
+  AnalyticsFilter({required this.filterName, required this.filterType});
+}
+
+class DriverAnalyticsPage extends HookConsumerWidget {
   const DriverAnalyticsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<String> filters = [
-      "All",
-      "Today",
-      "This Week",
-      "This Month",
-      "This Year",
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<AnalyticsFilter> filters = useMemoized(
+      () => [
+        AnalyticsFilter(filterName: "All", filterType: FilterType.all),
+        AnalyticsFilter(filterName: "Paid", filterType: FilterType.paid),
+        AnalyticsFilter(filterName: "Unpaid", filterType: FilterType.pending),
+      ],
+    );
+
+    final filteredTripsAsync = ref
+        .watch(filteredTripsProvider(ref.read(currentUserProvider)!.driverId!));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Analytics'),
@@ -31,19 +51,29 @@ class DriverAnalyticsPage extends StatelessWidget {
                 itemCount: filters.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
-                  return Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 40, vertical: 6),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(1000),
-                      color:
-                          index == 0 ? kPrimaryColor : kOverlayDarkBackground,
+                  return GestureDetector(
+                    onTap: () {
+                      final filter = filters[index];
+
+                      ref.read(filterTypeProvider.notifier).state =
+                          filter.filterType;
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(1000),
+                        color: filters[index].filterType ==
+                                ref.watch(filterTypeProvider)
+                            ? kPrimaryColor
+                            : kOverlayDarkBackground,
+                      ),
+                      margin: EdgeInsets.only(
+                        left: index == 0 ? 24.0 : 0,
+                        right: index == filters.length - 1 ? 24.0 : 0,
+                      ),
+                      child: Center(child: Text(filters[index].filterName)),
                     ),
-                    margin: EdgeInsets.only(
-                      left: index == 0 ? 24.0 : 0,
-                      right: index == filters.length - 1 ? 24.0 : 0,
-                    ),
-                    child: Center(child: Text(filters[index])),
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) =>
@@ -52,14 +82,28 @@ class DriverAnalyticsPage extends StatelessWidget {
             ),
             verticalSpaceMedium,
             Expanded(
-              child: DefaultAppPadding.horizontal(
-                child: ListView.separated(
-                  itemCount: 30,
-                  itemBuilder: (context, index) {
-                    return AnalyticsItem(isPaid: index % 2 == 0);
-                  },
-                  separatorBuilder: (context, index) => verticalSpaceRegular,
-                ),
+              child: filteredTripsAsync.when(
+                data: (trips) {
+                  if (trips.isEmpty) {
+                    return const Center(
+                      child: Text('No trips found'),
+                    );
+                  }
+                  return DefaultAppPadding.horizontal(
+                    child: ListView.separated(
+                      itemCount: trips.length,
+                      itemBuilder: (context, index) {
+                        final trip = trips[index];
+                        return AnalyticsItem(
+                            isPaid: trip.paymentStatus == "paid", trip: trip);
+                      },
+                      separatorBuilder: (context, index) =>
+                          verticalSpaceRegular,
+                    ),
+                  );
+                },
+                error: (error, stackTrace) => const ErrorView(),
+                loading: () => const AppLoader(),
               ),
             ),
           ],
@@ -71,11 +115,13 @@ class DriverAnalyticsPage extends StatelessWidget {
 
 class AnalyticsItem extends StatelessWidget {
   const AnalyticsItem({
+    required this.trip,
     this.isPaid = false,
     Key? key,
   }) : super(key: key);
 
   final bool isPaid;
+  final Trip trip;
 
   @override
   Widget build(BuildContext context) {
@@ -93,14 +139,14 @@ class AnalyticsItem extends StatelessWidget {
               children: [
                 const Icon(Icons.directions_car),
                 horizontalSpaceSmall,
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     text: 'Trip ',
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey),
                     children: [
                       TextSpan(
-                        text: '#123456',
-                        style: TextStyle(
+                        text: '#${trip.tripId}',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
@@ -116,7 +162,7 @@ class AnalyticsItem extends StatelessWidget {
                 horizontalSpaceSmall,
                 Text.rich(
                   TextSpan(
-                    text: '\$2000',
+                    text: '\$${trip.amount}',
                     style: TextStyle(
                       color: isPaid ? Colors.green : Colors.red,
                     ),
@@ -133,14 +179,16 @@ class AnalyticsItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Divider(),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     text: 'Start: ',
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey),
                     children: [
                       TextSpan(
-                        text: 'Thur, 2 Nov at 05:30 PM',
-                        style: TextStyle(
+                        // text: 'Thur, 2 Nov at 05:30 PM',
+                        text: DateFormat("EEEE dd MMM, hh:mm aaa")
+                            .format(trip.start!),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
@@ -152,14 +200,15 @@ class AnalyticsItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: List.generate(2, (index) => const Text(".")),
                 ),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     text: 'End: ',
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey),
                     children: [
                       TextSpan(
-                        text: 'Thur, 2 Nov at 05:30 PM',
-                        style: TextStyle(
+                        text: DateFormat("EEEE dd MMM, hh:mm aaa")
+                            .format(trip.end!),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
@@ -169,14 +218,14 @@ class AnalyticsItem extends StatelessWidget {
                 ),
                 const Divider(),
                 verticalSpaceSmall,
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     text: 'ELD# ',
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey),
                     children: [
                       TextSpan(
-                        text: '1234-5678',
-                        style: TextStyle(
+                        text: trip.eldSerialId,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
@@ -185,14 +234,14 @@ class AnalyticsItem extends StatelessWidget {
                   ),
                 ),
                 verticalSpaceSmall,
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     text: 'Miles Covered: ',
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey),
                     children: [
                       TextSpan(
-                        text: '200.3',
-                        style: TextStyle(
+                        text: trip.miles.toString(),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
@@ -228,31 +277,31 @@ class AnalyticsItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
-                    children: const [
+                    children: [
                       CircleAvatar(
                         radius: 14,
                         backgroundColor: Colors.grey,
-                        child: Text("J"),
+                        child: Text(trip.driverName![0].toUpperCase()),
                       ),
                       horizontalSpaceSmall,
-                      Text('John Doe'),
-                      Spacer(),
-                      Text('john@email.com'),
+                      Text(trip.driverName!),
+                      const Spacer(),
+                      Text(trip.driverEmail!),
                     ],
                   ),
                 ),
-                if (!isPaid) ...[
-                  verticalSpaceRegular,
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                    ),
-                    icon: const Icon(Icons.check_circle),
-                    label: const Text("Mark as Paid"),
-                  ),
-                ],
+                // if (!isPaid) ...[
+                //   verticalSpaceRegular,
+                //   ElevatedButton.icon(
+                //     onPressed: () {},
+                //     style: ElevatedButton.styleFrom(
+                //       padding: const EdgeInsets.symmetric(
+                //           horizontal: 12, vertical: 10),
+                //     ),
+                //     icon: const Icon(Icons.check_circle),
+                //     label: const Text("Mark as Paid"),
+                //   ),
+                // ],
               ],
             ),
           ],

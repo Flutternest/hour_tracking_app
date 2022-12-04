@@ -13,6 +13,7 @@ class Trip extends Equatable {
   final int? tripId;
   final num? payPerMile;
   final int? timeDrivenInSeconds;
+  final String? driverEmail;
 
   const Trip({
     this.amount,
@@ -27,6 +28,7 @@ class Trip extends Equatable {
     this.tripId,
     this.payPerMile,
     this.timeDrivenInSeconds,
+    this.driverEmail,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) => Trip(
@@ -44,6 +46,7 @@ class Trip extends Equatable {
         tripId: json['trip_id'] as int?,
         payPerMile: (json['pay_per_mile']) as num?,
         timeDrivenInSeconds: (json['time_driven_in_seconds']) as int?,
+        driverEmail: json['driver_email'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +62,7 @@ class Trip extends Equatable {
         'trip_id': tripId,
         'pay_per_mile': payPerMile,
         'time_driven_in_seconds': timeDrivenInSeconds,
+        'driver_email': driverEmail,
       };
 
   Trip copyWith({
@@ -74,20 +78,23 @@ class Trip extends Equatable {
     int? tripId,
     num? payPerMile,
     int? timeDrivenInSeconds,
+    String? driverEmail,
   }) {
     return Trip(
-        amount: amount ?? this.amount,
-        driverId: driverId ?? this.driverId,
-        driverName: driverName ?? this.driverName,
-        eldSerialId: eldSerialId ?? this.eldSerialId,
-        start: start ?? this.start,
-        end: end ?? this.end,
-        miles: miles ?? this.miles,
-        tripStatus: tripStatus ?? this.tripStatus,
-        paymentStatus: paymentStatus ?? this.paymentStatus,
-        tripId: tripId ?? this.tripId,
-        payPerMile: payPerMile ?? this.payPerMile,
-        timeDrivenInSeconds: timeDrivenInSeconds);
+      amount: amount ?? this.amount,
+      driverId: driverId ?? this.driverId,
+      driverName: driverName ?? this.driverName,
+      eldSerialId: eldSerialId ?? this.eldSerialId,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      miles: miles ?? this.miles,
+      tripStatus: tripStatus ?? this.tripStatus,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      tripId: tripId ?? this.tripId,
+      payPerMile: payPerMile ?? this.payPerMile,
+      timeDrivenInSeconds: timeDrivenInSeconds,
+      driverEmail: driverEmail ?? this.driverEmail,
+    );
   }
 
   @override
@@ -108,6 +115,7 @@ class Trip extends Equatable {
       tripId,
       payPerMile,
       timeDrivenInSeconds,
+      driverEmail,
     ];
   }
 }
