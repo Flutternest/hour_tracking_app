@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flux_mvp/auth/auth_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -60,7 +61,10 @@ class AuthController extends AppStateNotifier {
     // await prefs.set(PrefKeys.isTimerOnGoing, isOnGoing);
     // await prefs.set(PrefKeys.milesCovered, milesCovered);
 
-    repo.logout();
+    ref.invalidate(currentUserProvider);
+
+    FirebaseAuth.instance.signOut();
+
     AppRouter.navigateAndRemoveUntil(AppRoutes.welcomePage);
   }
 }

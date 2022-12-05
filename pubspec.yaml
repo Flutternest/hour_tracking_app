@@ -39,10 +39,10 @@ dependencies:
   flutter_svg: ^1.1.6
   hooks_riverpod: ^2.1.1
   flutter_hooks: ^0.18.5+1
-  firebase_core: ^2.3.0
-  firebase_auth: ^4.1.5
+  firebase_core: 2.2.0
+  firebase_auth: 4.1.2
   shared_preferences: ^2.0.15
-  cloud_firestore: ^4.1.0
+  cloud_firestore: 
   equatable: ^2.0.5
   pausable_timer: ^1.0.0+6
   intl: ^0.17.0
