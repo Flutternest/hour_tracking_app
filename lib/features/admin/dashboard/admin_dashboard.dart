@@ -159,7 +159,9 @@ class AdminDashboardPage extends HookConsumerWidget {
                                             child: LinearProgressIndicator(
                                               minHeight: 10,
                                               color: Colors.red,
-                                              value: amount! / maxAmount,
+                                              value: amount == 0
+                                                  ? 0
+                                                  : amount! / maxAmount,
                                             ),
                                           ),
                                         ),
