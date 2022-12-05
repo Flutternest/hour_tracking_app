@@ -48,8 +48,19 @@ class AuthController extends AppStateNotifier {
   }
 
   Future<void> logout() async {
-    repo.logout();
+    final timerCount = prefs.get(PrefKeys.timerCount) ?? 0;
+    final timerLoggingDateTime = prefs.get(PrefKeys.timerLoggingDateTime);
+    final isOnGoing = prefs.get(PrefKeys.isTimerOnGoing);
+    final milesCovered = prefs.get(PrefKeys.milesCovered);
+
     await ref.read(prefsStorageServiceProvider).clear();
+
+    await prefs.set(PrefKeys.timerCount, timerCount);
+    await prefs.set(PrefKeys.timerLoggingDateTime, timerLoggingDateTime);
+    await prefs.set(PrefKeys.isTimerOnGoing, isOnGoing);
+    await prefs.set(PrefKeys.milesCovered, milesCovered);
+
+    repo.logout();
     AppRouter.navigateAndRemoveUntil(AppRoutes.welcomePage);
   }
 }
