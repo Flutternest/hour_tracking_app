@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flux MVP',
+      title: 'Flux',
       theme: AppThemes.darkTheme,
       debugShowCheckedModeBanner: false,
       navigatorKey: AppRouter.navigatorKey,
