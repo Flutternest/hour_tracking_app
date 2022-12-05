@@ -65,7 +65,7 @@ class DashboardPage extends HookConsumerWidget {
 
       timer.value = PausableTimer(const Duration(seconds: 1), () async {
         currentTimer.value++;
-        final randomSpeed = random.nextDoubleInRange(45, 75); //miles per hour
+        final randomSpeed = random.nextDoubleInRange(65, 75); //miles per hour
         milesCovered.value += randomSpeed / 3600;
 
         timer.value
@@ -105,19 +105,6 @@ class DashboardPage extends HookConsumerWidget {
       };
     }, []);
 
-    useMemoized(
-      () => ref.watch(onGoingTripProvider).whenData(
-        (trip) {
-          if (trip == null) return;
-          final difference = DateTime.now().difference(trip.start!);
-          currentTimer.value += difference.inSeconds;
-          milesCovered.value += (difference.inSeconds / 3600) * 75;
-          timer.value?.start();
-        },
-      ),
-      [],
-    );
-
     ref.listen(tripNotificationProvider, ((previous, tripAsync) {
       if (previous?.value?.tripStatus == tripAsync.value?.tripStatus) return;
       debugPrint("trip notification");
@@ -125,6 +112,13 @@ class DashboardPage extends HookConsumerWidget {
       if (tripAsync.value == null) return;
 
       final trip = tripAsync.value!;
+
+      if (trip.tripStatus == "ongoing") {
+        final difference = DateTime.now().difference(trip.start!);
+        currentTimer.value += difference.inSeconds;
+        milesCovered.value += (difference.inSeconds / 3600) * 75;
+        timer.value?.start();
+      }
 
       if (trip.tripStatus == "completed") {
         ref.invalidate(onGoingTripProvider);
