@@ -13,11 +13,17 @@ class FirebaseTripRepository implements TripRepository {
   String get path => 'trips';
 
   @override
-  Future<List<Trip>> getAllTrips(String? driverId) async {
+  Future<List<Trip>> getAllTrips(String? driverId,
+      {bool includeOngoing = false}) async {
     Query<Map<String, dynamic>> query = firestore.collection(path);
 
     if (driverId != null) {
       query = query.where('driver_id', isEqualTo: driverId);
+    }
+
+    if (!includeOngoing) {
+      query = query.where('trip_status', isNotEqualTo: "ongoing");
+      query = query.orderBy('trip_status');
     }
 
     final snapshot =
@@ -28,11 +34,16 @@ class FirebaseTripRepository implements TripRepository {
   }
 
   @override
-  Stream<List<Trip>> getAllTripsStream(String? driverId) {
+  Stream<List<Trip>> getAllTripsStream(String? driverId,
+      {bool includeOngoing = false}) {
     Query<Map<String, dynamic>> query = firestore.collection(path);
 
     if (driverId != null) {
       query = query.where('driver_id', isEqualTo: driverId);
+    }
+    if (!includeOngoing) {
+      query = query.where('trip_status', isNotEqualTo: "ongoing");
+      query = query.orderBy('trip_status');
     }
 
     final snapshot =
@@ -127,6 +138,7 @@ class FirebaseTripRepository implements TripRepository {
     final snapshot = await firestore
         .collection(path)
         .where('payment_status', isEqualTo: "pending")
+        .where('trip_status', isEqualTo: "completed")
         .orderBy('date_created', descending: true)
         .get();
 
@@ -138,7 +150,7 @@ class FirebaseTripRepository implements TripRepository {
   Stream<List<Trip>> getAllOngoingTripsStream() {
     final snapshot = firestore
         .collection(path)
-        .where('trip_status', isEqualTo: "ongoing")
+        .where('trip_status', whereIn: ["ongoing", "paused"])
         .orderBy('date_created', descending: true)
         .snapshots();
 
@@ -152,6 +164,7 @@ class FirebaseTripRepository implements TripRepository {
     final snapshot = firestore
         .collection(path)
         .where('payment_status', isEqualTo: "pending")
+        .where('trip_status', isEqualTo: "completed")
         .orderBy('date_created', descending: true)
         .snapshots();
 

@@ -16,8 +16,10 @@ final tripRepositoryProvider = Provider<TripRepository>(
 abstract class TripRepository {
   String get path;
 
-  Future<List<Trip>> getAllTrips(String? driverId);
-  Stream<List<Trip>> getAllTripsStream(String? driverId);
+  Future<List<Trip>> getAllTrips(String? driverId,
+      {bool includeOngoing = false});
+  Stream<List<Trip>> getAllTripsStream(String? driverId,
+      {bool includeOngoing = false});
 
   // Returns null if there's no ongoing trip for the driver
   Future<Trip?> getCurrentOnGoingTrip(String driverId);
