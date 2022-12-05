@@ -21,9 +21,9 @@ class DriverLoginPage extends HookConsumerWidget {
         authControllerProvider, (_, state) => state.handleErrors(context, ref));
 
     final TextEditingController emailController =
-        useTextEditingController(text: "test@test.com");
+        useTextEditingController(text: "");
     final TextEditingController passwordController =
-        useTextEditingController(text: "test@123");
+        useTextEditingController(text: "");
 
     final formKey = useMemoized(() => GlobalKey<FormState>());
 
@@ -62,6 +62,7 @@ class DriverLoginPage extends HookConsumerWidget {
                   TextFormField(
                     controller: emailController,
                     validator: AppUtils.emailValidate,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: "Email",
                       hintText: "Enter your email",

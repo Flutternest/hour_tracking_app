@@ -23,8 +23,10 @@ abstract class TripRepository {
 
   // Returns null if there's no ongoing trip for the driver
   Future<Trip?> getCurrentOnGoingTrip(String driverId);
+  Stream<Trip?> getCurrentOnGoingTripStream(String driverId);
 
   Future<Trip> getTripDetails(String tripId);
+  Stream<Trip> getTripDetailsStream(String tripId);
 
   Future<void> createTrip(Trip trip, {required String tripId});
   Future<void> pauseTrip(String tripId);

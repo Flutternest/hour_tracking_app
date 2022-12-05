@@ -167,7 +167,7 @@ class AdminDashboardPage extends HookConsumerWidget {
                                         ),
                                         horizontalSpaceSmall,
                                         Text(
-                                          "\$$amount",
+                                          "\$${amount?.toStringAsFixed(2)}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w700,
                                           ),

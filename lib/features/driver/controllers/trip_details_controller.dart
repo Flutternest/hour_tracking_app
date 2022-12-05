@@ -7,3 +7,11 @@ final tripDetailsProvider =
     FutureProvider.autoDispose.family<Trip, int>((ref, tripId) async {
   return ref.read(tripRepositoryProvider).getTripDetails(tripId.toString());
 });
+
+final tripDetailsStreamProvider =
+    StreamProvider.family<Trip?, int?>((ref, tripId) {
+  if (tripId == null) const Stream.empty();
+  return ref
+      .read(tripRepositoryProvider)
+      .getTripDetailsStream(tripId.toString());
+});

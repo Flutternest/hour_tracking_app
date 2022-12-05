@@ -65,6 +65,16 @@ class FirebaseTripRepository implements TripRepository {
   }
 
   @override
+  Stream<Trip?> getCurrentOnGoingTripStream(String driverId) {
+    final snapshot = firestore
+        .collection(path)
+        .where('driver_id', isEqualTo: driverId)
+        .where('trip_status', whereIn: ["ongoing", "paused"]).snapshots();
+    return snapshot.map<Trip?>((event) =>
+        event.docs.isEmpty ? null : Trip.fromJson(event.docs.first.data()));
+  }
+
+  @override
   Future<void> createTrip(Trip trip, {required String tripId}) {
     final tripData = trip.toJson();
     tripData.addAll({"date_created": FieldValue.serverTimestamp()});
@@ -119,6 +129,12 @@ class FirebaseTripRepository implements TripRepository {
   Future<Trip> getTripDetails(String tripId) async {
     final snapshot = await firestore.collection(path).doc(tripId).get();
     return Trip.fromJson(snapshot.data()!);
+  }
+
+  @override
+  Stream<Trip> getTripDetailsStream(String tripId) {
+    final snapshot = firestore.collection(path).doc(tripId).snapshots();
+    return snapshot.map((event) => Trip.fromJson(event.data()!));
   }
 
   @override

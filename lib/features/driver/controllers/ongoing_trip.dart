@@ -9,3 +9,9 @@ final onGoingTripProvider = FutureProvider<Trip?>((ref) async {
       .watch(tripRepositoryProvider)
       .getCurrentOnGoingTrip(ref.read(currentUserProvider)!.driverId!);
 });
+
+final onGoingTripStreamProvider = StreamProvider<Trip?>((ref) {
+  return ref
+      .watch(tripRepositoryProvider)
+      .getCurrentOnGoingTripStream(ref.read(currentUserProvider)!.driverId!);
+});

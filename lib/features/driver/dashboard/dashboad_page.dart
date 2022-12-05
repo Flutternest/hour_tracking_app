@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:flux_mvp/core/utils/ui_helper.dart';
 import 'package:flux_mvp/features/common/providers/driver_all_trips_provider.dart';
 import 'package:flux_mvp/features/common/providers/filtered_tips_provider.dart';
 import 'package:flux_mvp/features/driver/controllers/ongoing_trip.dart';
+import 'package:flux_mvp/features/driver/controllers/trip_details_controller.dart';
 import 'package:flux_mvp/routing/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pausable_timer/pausable_timer.dart';
@@ -26,17 +28,37 @@ import '../../common/providers/trip.dart';
 import '../controllers/driver_trip_controller.dart';
 import '../widgets/side_menu.dart';
 
+final tripNotificationProvider = StreamProvider.autoDispose<Trip?>((ref) {
+  StreamSubscription? subscription;
+
+  ref.onDispose(() {
+    subscription?.cancel();
+  });
+
+  return ref.watch(onGoingTripProvider).maybeWhen(
+      data: (trip) {
+        if (trip == null) return const Stream.empty();
+        subscription?.cancel();
+        return ref.watch(tripDetailsStreamProvider(trip.tripId!).stream);
+      },
+      orElse: () => const Stream.empty());
+});
+
 class DashboardPage extends HookConsumerWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ongoingTripAsync = ref.watch(onGoingTripProvider);
-    final currentTimer = useState(0);
-    final timer = useRef<PausableTimer?>(null);
     final prefs = ref.watch(prefsStorageServiceProvider);
-    final random = useMemoized(() => Random());
+
+    final currentTimer = useState(0);
     final milesCovered = useState(0.0);
+    final timer = useRef<PausableTimer?>(null);
+
+    final random = useMemoized(() => Random());
+
+    final streamController = useRef<StreamSubscription?>(null);
 
     final initiateTimer = useCallback(() {
       if (!(timer.value?.isCancelled ?? true)) return;
@@ -60,28 +82,68 @@ class DashboardPage extends HookConsumerWidget {
     }, []);
 
     useEffect(() {
-      currentTimer.value = prefs.get(PrefKeys.timerCount) ?? 0;
-      milesCovered.value = prefs.get(PrefKeys.milesCovered) ?? 0.0;
+      // currentTimer.value = prefs.get(PrefKeys.timerCount) ?? 0;
+      // milesCovered.value = prefs.get(PrefKeys.milesCovered) ?? 0.0;
 
-      final timerLoggingDateTime = prefs.get(PrefKeys.timerLoggingDateTime);
-      if (timerLoggingDateTime != null) {
-        final difference =
-            DateTime.now().difference(DateTime.parse(timerLoggingDateTime));
-        currentTimer.value += difference.inSeconds;
-        milesCovered.value += (difference.inSeconds / 3600) * 75;
-      }
+      // final timerLoggingDateTime = prefs.get(PrefKeys.timerLoggingDateTime);
+      // if (timerLoggingDateTime != null) {
+      //   final difference =
+      //       DateTime.now().difference(DateTime.parse(timerLoggingDateTime));
+      //   currentTimer.value += difference.inSeconds;
+      //   milesCovered.value += (difference.inSeconds / 3600) * 75;
+      // }
 
       initiateTimer.call();
-
-      final isOnGoing = prefs.get(PrefKeys.isTimerOnGoing) ?? false;
-      if (isOnGoing) {
-        timer.value?.start();
-      }
+      // final isOnGoing = prefs.get(PrefKeys.isTimerOnGoing) ?? false;
+      // if (isOnGoing) {
+      //   timer.value?.start();
+      // }
 
       return () {
         timer.value?.cancel();
+        streamController.value?.cancel();
       };
     }, []);
+
+    useMemoized(
+      () => ref.watch(onGoingTripProvider).whenData(
+        (trip) {
+          if (trip == null) return;
+          final difference = DateTime.now().difference(trip.start!);
+          currentTimer.value += difference.inSeconds;
+          milesCovered.value += (difference.inSeconds / 3600) * 75;
+          timer.value?.start();
+        },
+      ),
+      [],
+    );
+
+    ref.listen(tripNotificationProvider, ((previous, tripAsync) {
+      if (previous?.value?.tripStatus == tripAsync.value?.tripStatus) return;
+      debugPrint("trip notification");
+
+      if (tripAsync.value == null) return;
+
+      final trip = tripAsync.value!;
+
+      if (trip.tripStatus == "completed") {
+        ref.invalidate(onGoingTripProvider);
+        ref.invalidate(driverAllTripsProvider);
+        ref.invalidate(filteredTripsProvider);
+
+        timer.value?.cancel();
+
+        currentTimer.value = 0;
+        milesCovered.value = 0;
+
+        AppRouter.navigateToPage(
+          AppRoutes.driverResultPage,
+          arguments: trip.tripId,
+        );
+
+        return;
+      }
+    }));
 
     return Scaffold(
       appBar: AppBar(
@@ -100,15 +162,11 @@ class DashboardPage extends HookConsumerWidget {
               case "ongoing":
                 tripStatus = "Commute ongoing";
                 tripStatusColor = Colors.green;
-                // currentTimer.value =
-                //     DateTime.now().difference(trip!.start!).inSeconds;
                 break;
               case "paused":
                 isPaused = true;
                 tripStatus = "Commute paused";
                 tripStatusColor = Colors.orange;
-                // currentTimer.value =
-                //     DateTime.now().difference(trip!.start!).inSeconds;
                 break;
               default:
                 tripStatus = "Commute not started";
@@ -231,190 +289,6 @@ class DashboardPage extends HookConsumerWidget {
                             child: const Text("Start Driving"),
                           );
                         },
-                      ),
-                    ] else ...[
-                      verticalSpaceMedium,
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Consumer(
-                              builder: (context, ref, child) {
-                                final pauseTripAsync =
-                                    ref.watch(pauseTripProvider);
-
-                                return ElevatedButton(
-                                  onPressed: pauseTripAsync.isLoading
-                                      ? null
-                                      : () async {
-                                          if (isPaused) {
-                                            timer.value?.start();
-                                            prefs.set(
-                                                PrefKeys.isTimerOnGoing, true);
-                                            ref
-                                                .read(
-                                                    pauseTripProvider.notifier)
-                                                .resumeTrip(
-                                                    trip.tripId.toString())
-                                                .catchError((e) =>
-                                                    showErrorSnackBar(
-                                                        context, e))
-                                                .then((_) => ref.invalidate(
-                                                    onGoingTripProvider));
-                                            return;
-                                          }
-                                          timer.value?.pause();
-                                          prefs.set(
-                                              PrefKeys.isTimerOnGoing, false);
-                                          prefs.remove(
-                                              PrefKeys.timerLoggingDateTime);
-                                          ref
-                                              .read(pauseTripProvider.notifier)
-                                              .pauseTrip(trip.tripId.toString())
-                                              .catchError((e) =>
-                                                  showErrorSnackBar(context, e))
-                                              .then((_) => ref.invalidate(
-                                                  onGoingTripProvider));
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isPaused
-                                        ? Colors.orange
-                                        : kOverlayDarkBackground,
-                                  ),
-                                  child: Text(isPaused ? "Resume" : "Pause"),
-                                );
-                              },
-                            ),
-                          ),
-                          horizontalSpaceRegular,
-                          Expanded(
-                            child: Consumer(
-                              builder: (context, ref, child) {
-                                final stopTripAsync =
-                                    ref.watch(stopTripProvider);
-
-                                return ElevatedButton(
-                                  onPressed: stopTripAsync.isLoading
-                                      ? null
-                                      : () async {
-                                          final shouldEndTrip =
-                                              await showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return AlertDialog(
-                                                      title: Center(
-                                                        child: Column(
-                                                          children: const [
-                                                            Text("End Trip"),
-                                                            verticalSpaceRegular,
-                                                            Icon(
-                                                              Icons.warning,
-                                                              color:
-                                                                  Colors.orange,
-                                                              size: 70,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      content: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .stretch,
-                                                        children: [
-                                                          const Text(
-                                                              "Are you sure you want to end this trip?"),
-                                                          verticalSpaceRegular,
-                                                          ElevatedButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context,
-                                                                  true);
-                                                            },
-                                                            style: ElevatedButton
-                                                                .styleFrom(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .red),
-                                                            child: const Text(
-                                                                "End Trip"),
-                                                          ),
-                                                          verticalSpaceSmall,
-                                                          ElevatedButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context,
-                                                                  false);
-                                                            },
-                                                            style: ElevatedButton
-                                                                .styleFrom(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .grey),
-                                                            child: const Text(
-                                                                "No, continue driving"),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    );
-                                                  });
-
-                                          if (shouldEndTrip == null ||
-                                              !shouldEndTrip) {
-                                            return;
-                                          }
-
-                                          ref
-                                              .read(stopTripProvider.notifier)
-                                              .stopTrip(
-                                                trip.tripId.toString(),
-                                                distanceInMiles: milesCovered
-                                                    .value
-                                                    .toPrecision(2),
-                                                end: DateTime.now(),
-                                                totalPayment:
-                                                    (milesCovered.value *
-                                                            (trip.payPerMile!))
-                                                        .toDouble()
-                                                        .toPrecision(1),
-                                                timeDrivenInSeconds:
-                                                    currentTimer.value,
-                                              )
-                                              .catchError((e) =>
-                                                  showErrorSnackBar(context, e))
-                                              .then((_) async {
-                                            currentTimer.value = 0;
-                                            milesCovered.value = 0;
-                                            timer.value?.cancel();
-                                            await Future.wait([
-                                              prefs.remove(PrefKeys
-                                                  .timerLoggingDateTime),
-                                              prefs.remove(
-                                                  PrefKeys.isTimerOnGoing),
-                                              prefs.remove(PrefKeys.timerCount),
-                                              prefs.remove(
-                                                  PrefKeys.milesCovered),
-                                            ]);
-                                            ref.invalidate(onGoingTripProvider);
-                                            ref.invalidate(
-                                                driverAllTripsProvider);
-                                            ref.invalidate(
-                                                filteredTripsProvider);
-                                            AppRouter.navigateToPage(
-                                              AppRoutes.driverResultPage,
-                                              arguments: trip.tripId,
-                                            );
-                                          });
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                  child: const Text("End Trip"),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                     if (isTripOnGoing) ...[

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flux_mvp/auth/auth_controller.dart';
 import 'package:flux_mvp/core/constants/paths.dart';
+import 'package:flux_mvp/global_providers.dart';
 import 'package:flux_mvp/routing/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -57,6 +58,16 @@ class AdminDrawer extends HookConsumerWidget {
                       AppRouter.navigateToPage(AppRoutes.adminAddDriversPage);
                     },
                   ),
+                  if (ref.watch(currentUserProvider)?.email == "admin@test.com")
+                    ListTile(
+                      title: const Text('Manage Trips'),
+                      horizontalTitleGap: 5,
+                      leading: const Icon(Icons.settings),
+                      onTap: () {
+                        AppRouter.navigateToPage(
+                            AppRoutes.adminManageTripsPage);
+                      },
+                    ),
                   const Spacer(),
                   ListTile(
                     title: const Text('Logout'),

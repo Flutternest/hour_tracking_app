@@ -39,9 +39,11 @@ void showSnackBar(
       children: [
         icon ?? const SizedBox.shrink(),
         if (icon != null) horizontalSpaceRegular,
-        Text(
-          message ?? "Something went wrong",
-          style: const TextStyle(color: Colors.white),
+        Expanded(
+          child: Text(
+            message ?? "Something went wrong",
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       ],
     ),

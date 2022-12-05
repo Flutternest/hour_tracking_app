@@ -9,6 +9,7 @@ import 'package:flux_mvp/features/admin/settings/analytics_page.dart';
 import 'package:flux_mvp/features/admin/settings/drivers_page.dart';
 import 'package:flux_mvp/features/driver/auth/driver_login_page.dart';
 import 'package:flux_mvp/features/driver/settings/analytics_page.dart';
+import 'package:flux_mvp/features/driver/settings/mange_trips_page.dart';
 import 'package:flux_mvp/features/driver/settings/my_earnings.dart';
 import 'package:flux_mvp/features/driver/settings/profile_page.dart';
 import 'package:flux_mvp/features/splash_page.dart';
@@ -27,6 +28,7 @@ class AppRoutes {
   static const adminAnalyticsPage = '/admin-analytics-page';
   static const adminDriversPage = '/admin-drivers-page';
   static const adminAddDriversPage = '/admin-add-drivers-page';
+  static const adminManageTripsPage = '/admin-manage-trips-page';
 
   //driver flow
   static const driverLoginPage = '/driver-login-page';
@@ -125,6 +127,12 @@ class AppRouter {
       case AppRoutes.adminAddDriversPage:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const AddDriverPage(),
+          settings: settings,
+          fullscreenDialog: false,
+        );
+      case AppRoutes.adminManageTripsPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => const ManageTripsPage(),
           settings: settings,
           fullscreenDialog: false,
         );
