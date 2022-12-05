@@ -10,6 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../common/providers/all_ongoing_trips_provider.dart';
+import '../../common/providers/trip.dart';
 import '../widgets/side_menu.dart';
 
 class AdminDashboardPage extends HookConsumerWidget {
@@ -96,11 +97,25 @@ class AdminDashboardPage extends HookConsumerWidget {
                 verticalSpaceMedium,
                 allPendingPaymentsAsync.when(
                   data: (trips) {
-                    trips.sort((a, b) => b.amount!.compareTo(a.amount!));
+                    /// Object equality check is very important for this to work. Consider using Equatable
+                    final groupedTrips = trips.fold<Map<Driver, double>>(
+                      {},
+                      (previousValue, trip) {
+                        final amount = previousValue[trip.driver] ?? 0;
+                        previousValue[trip.driver!] = amount + trip.amount!;
+                        return previousValue;
+                      },
+                    );
+
+                    // groupedTrips.sort((a, b) => b.amount!.compareTo(a.amount!));
+                    var sortedKeys = groupedTrips.keys.toList()
+                      ..sort((a, b) =>
+                          groupedTrips[b]!.compareTo(groupedTrips[a]!));
+
                     double maxAmount = 0.0;
 
-                    if (trips.isNotEmpty) {
-                      maxAmount = trips.first.amount!;
+                    if (groupedTrips.isNotEmpty) {
+                      maxAmount = groupedTrips[sortedKeys.first]!;
                     }
 
                     return Container(
@@ -117,7 +132,7 @@ class AdminDashboardPage extends HookConsumerWidget {
                             style: const TextStyle(color: Colors.grey),
                           ),
                           verticalSpaceSmall,
-                          if (trips.isEmpty)
+                          if (groupedTrips.isEmpty)
                             const Center(
                               child: Text("We are all covered"),
                             )
@@ -125,14 +140,17 @@ class AdminDashboardPage extends HookConsumerWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: List.generate(
-                                trips.length,
+                                groupedTrips.length,
                                 (index) {
-                                  final trip = trips[index];
+                                  final driver = sortedKeys[index];
+                                  final amount =
+                                      groupedTrips[sortedKeys[index]];
+
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 12.0),
                                     child: Row(
                                       children: [
-                                        Text(trip.driverName!),
+                                        Text(driver.driverName!),
                                         horizontalSpaceSmall,
                                         Expanded(
                                           child: ClipRRect(
@@ -141,13 +159,13 @@ class AdminDashboardPage extends HookConsumerWidget {
                                             child: LinearProgressIndicator(
                                               minHeight: 10,
                                               color: Colors.red,
-                                              value: trip.amount! / maxAmount,
+                                              value: amount! / maxAmount,
                                             ),
                                           ),
                                         ),
                                         horizontalSpaceSmall,
                                         Text(
-                                          "\$${trip.amount!}",
+                                          "\$$amount",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -236,7 +254,7 @@ class OngoingTripsContainer extends HookConsumerWidget {
                         padding: const EdgeInsets.only(top: 12.0),
                         child: Row(
                           children: [
-                            Text(trip.driverName!),
+                            Text(trip.driver!.driverName!),
                             horizontalSpaceSmall,
                             Expanded(
                               child: ClipRRect(

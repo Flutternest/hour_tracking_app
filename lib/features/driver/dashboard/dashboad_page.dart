@@ -201,11 +201,14 @@ class DashboardPage extends HookConsumerWidget {
                                         .createTrip(
                                           Trip(
                                             tripStatus: "ongoing",
+                                            driver: Driver(
+                                              driverId: cu.driverId,
+                                              driverName: cu.name,
+                                              driverEmail: cu.email,
+                                            ),
                                             driverId: cu.driverId,
                                             amount: 0,
-                                            driverName: cu.name,
                                             eldSerialId: cu.eldSerialId,
-                                            driverEmail: cu.email,
                                             start: DateTime.now(),
                                             miles: 0,
                                             paymentStatus: "pending",
