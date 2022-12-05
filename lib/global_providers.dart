@@ -10,7 +10,7 @@ final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
 });
 
-final currentUserProvider = Provider<AuthUser?>((ref) {
+final currentUserProvider = Provider.autoDispose<AuthUser?>((ref) {
   final user = ref.read(prefsStorageServiceProvider).get(PrefKeys.userDetails);
   if (user != null) {
     return AuthUser.fromJson(jsonDecode(user));
