@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:455456088796:android:3656aadbe552e6a23f4a19",
         "android_client_info": {
-          "package_name": "com.example.flux_mvp"
+          "package_name": "com.fluxway.app"
         }
       },
       "oauth_client": [

@@ -1,4 +1,4 @@
-package com.example.flux_mvp
+package com.fluxway.app
 
 import io.flutter.embedding.android.FlutterActivity
 
