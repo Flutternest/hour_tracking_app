@@ -6,6 +6,8 @@ class AppThemes {
     scaffoldBackgroundColor: kDarkBackground,
     primaryColor: kPrimaryColor,
     textTheme: textTheme,
+    appBarTheme:
+        const AppBarTheme(backgroundColor: kDarkBackground, elevation: 0),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: kPrimaryColor,

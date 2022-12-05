@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flux MVP',
       theme: AppThemes.darkTheme,
+      debugShowCheckedModeBanner: false,
       navigatorKey: AppRouter.navigatorKey,
       onGenerateRoute: AppRouter.onGenerateRoute,
     );

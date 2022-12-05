@@ -23,84 +23,87 @@ class DriverProfilePage extends HookConsumerWidget {
           title: const Text("Profile"),
         ),
         body: SafeArea(
-          child: DefaultAppPadding.horizontal(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                verticalSpaceMedium,
-                CircleAvatar(
-                  radius: 50,
-                  child: ValueListenableBuilder(
-                      valueListenable: nameController,
-                      builder: (context, value, child) {
-                        return Text(
-                          nameController.text.isNotEmpty
-                              ? value.text[0].toUpperCase()
-                              : "#",
-                          style: textTheme(context).headlineMedium,
-                        );
-                      }),
-                ),
-                verticalSpaceMedium,
-                TextFormField(
-                  controller: idController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.fingerprint),
-                    labelText: "ID",
-                    hintText: "Enter your ID",
+          child: SingleChildScrollView(
+            child: DefaultAppPadding.horizontal(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  verticalSpaceMedium,
+                  CircleAvatar(
+                    radius: 50,
+                    child: ValueListenableBuilder(
+                        valueListenable: nameController,
+                        builder: (context, value, child) {
+                          return Text(
+                            nameController.text.isNotEmpty
+                                ? value.text[0].toUpperCase()
+                                : "#",
+                            style: textTheme(context).headlineMedium,
+                          );
+                        }),
                   ),
-                ),
-                verticalSpaceMedium,
-                TextFormField(
-                  controller: nameController,
-                  keyboardType: TextInputType.name,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.person_outline),
-                    labelText: "Name",
-                    hintText: "Enter your name",
+                  verticalSpaceMedium,
+                  TextFormField(
+                    controller: idController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.fingerprint),
+                      labelText: "ID",
+                      hintText: "Enter your ID",
+                    ),
                   ),
-                ),
-                verticalSpaceMedium,
-                TextFormField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.email_outlined),
-                    labelText: "Email",
-                    hintText: "Enter your email address",
+                  verticalSpaceMedium,
+                  TextFormField(
+                    controller: nameController,
+                    keyboardType: TextInputType.name,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.person_outline),
+                      labelText: "Name",
+                      hintText: "Enter your name",
+                    ),
                   ),
-                ),
-                verticalSpaceLarge,
-                Consumer(
-                  builder: (context, ref, child) {
-                    final updateDriverAsync = ref.watch(updateDriverProvider);
-                    return ElevatedButton(
-                      onPressed: updateDriverAsync.isLoading
-                          ? null
-                          : () {
-                              final updatedUser = currentUser!.copyWith(
-                                name: nameController.text,
-                                email: emailController.text,
-                                eldSerialId: idController.text,
-                              );
-                              ref
-                                  .read(updateDriverProvider.notifier)
-                                  .updateDriver(
-                                    currentUser.uid!,
-                                    updatedUser,
-                                  )
-                                  .then((value) => showSnackBar(context,
-                                      message: "Profile updated successfully"));
-                            },
-                      child: Text(updateDriverAsync.isLoading
-                          ? "Updating..."
-                          : "Update Profile"),
-                    );
-                  },
-                ),
-                verticalSpaceMedium,
-              ],
+                  verticalSpaceMedium,
+                  TextFormField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.email_outlined),
+                      labelText: "Email",
+                      hintText: "Enter your email address",
+                    ),
+                  ),
+                  verticalSpaceLarge,
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final updateDriverAsync = ref.watch(updateDriverProvider);
+                      return ElevatedButton(
+                        onPressed: updateDriverAsync.isLoading
+                            ? null
+                            : () {
+                                final updatedUser = currentUser!.copyWith(
+                                  name: nameController.text,
+                                  email: emailController.text,
+                                  eldSerialId: idController.text,
+                                );
+                                ref
+                                    .read(updateDriverProvider.notifier)
+                                    .updateDriver(
+                                      currentUser.uid!,
+                                      updatedUser,
+                                    )
+                                    .then((value) => showSnackBar(context,
+                                        message:
+                                            "Profile updated successfully"));
+                              },
+                        child: Text(updateDriverAsync.isLoading
+                            ? "Updating..."
+                            : "Update Profile"),
+                      );
+                    },
+                  ),
+                  verticalSpaceMedium,
+                ],
+              ),
             ),
           ),
         ));
