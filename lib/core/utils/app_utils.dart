@@ -175,7 +175,7 @@ class AppUtils {
   }
 
   static String formatTimer(Duration d) {
-    final minutes = _pad2(d.inMinutes);
+    final minutes = _pad2(d.inMinutes % 60);
     final seconds = _pad2(d.inSeconds % 60);
     final hours = _pad2(d.inHours);
 
