@@ -9,6 +9,7 @@ class PrefKeys {
   static const String userDetails = 'userDetails';
   static const String timerCount = 'timerCount';
   static const String timerLoggingDateTime = 'timerLoggingDateTime';
+  static const String milesCovered = 'milesCovered';
 
   static const String isTimerOnGoing = "isOnGoingTrip";
 }
@@ -44,6 +45,8 @@ class SharedPrefService implements StorageService {
         return prefs.setBool(key, data as bool);
       case List:
         return prefs.setStringList(key, data as List<String>);
+      case Null:
+        return Future.value();
       default:
         return Future.error('Unsupported type');
     }
