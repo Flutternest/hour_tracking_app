@@ -49,6 +49,14 @@ class AdminDrawer extends HookConsumerWidget {
                       AppRouter.navigateToPage(AppRoutes.adminDriversPage);
                     },
                   ),
+                  ListTile(
+                    title: const Text('Add Driver'),
+                    horizontalTitleGap: 5,
+                    leading: const Icon(Icons.add_circle_outline),
+                    onTap: () {
+                      AppRouter.navigateToPage(AppRoutes.adminAddDriversPage);
+                    },
+                  ),
                   const Spacer(),
                   ListTile(
                     title: const Text('Logout'),
