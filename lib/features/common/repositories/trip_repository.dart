@@ -17,7 +17,7 @@ abstract class TripRepository {
   String get path;
 
   Future<List<Trip>> getAllTrips(String? driverId);
-  Future<Stream<List<Trip>>> getAllTripsStream(String driverId);
+  Stream<List<Trip>> getAllTripsStream(String? driverId);
 
   // Returns null if there's no ongoing trip for the driver
   Future<Trip?> getCurrentOnGoingTrip(String driverId);
@@ -45,4 +45,6 @@ abstract class TripRepository {
 
   Future<List<AuthUser>> getAllDrivers();
   Future<void> updateDriver(String driverId, AuthUser driver);
+
+  Future<void> markAsPaid(String tripId);
 }

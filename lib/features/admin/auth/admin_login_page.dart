@@ -20,8 +20,10 @@ class AdminLoginPage extends HookConsumerWidget {
     ref.listen<AsyncValue>(
         authControllerProvider, (_, state) => state.handleErrors(context, ref));
 
-    final TextEditingController emailController = useTextEditingController();
-    final TextEditingController passwordController = useTextEditingController();
+    final TextEditingController emailController =
+        useTextEditingController(text: "admin@test.com");
+    final TextEditingController passwordController =
+        useTextEditingController(text: "test@123");
 
     final formKey = useMemoized(() => GlobalKey<FormState>());
 

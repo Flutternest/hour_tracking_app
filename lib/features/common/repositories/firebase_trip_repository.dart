@@ -28,12 +28,16 @@ class FirebaseTripRepository implements TripRepository {
   }
 
   @override
-  Future<Stream<List<Trip>>> getAllTripsStream(String driverId) async {
-    final snapshot = firestore
-        .collection(path)
-        .where('driver_id', isEqualTo: driverId)
-        .orderBy('date_created', descending: true)
-        .snapshots();
+  Stream<List<Trip>> getAllTripsStream(String? driverId) {
+    Query<Map<String, dynamic>> query = firestore.collection(path);
+
+    if (driverId != null) {
+      query = query.where('driver_id', isEqualTo: driverId);
+    }
+
+    final snapshot =
+        query.orderBy('date_created', descending: true).snapshots();
+
     final trips = snapshot
         .map((e) => e.docs.map((e) => Trip.fromJson(e.data())).toList());
     return trips;
@@ -169,5 +173,12 @@ class FirebaseTripRepository implements TripRepository {
   @override
   Future<void> updateDriver(String driverId, AuthUser driver) {
     return firestore.collection('users').doc(driverId).update(driver.toJson());
+  }
+
+  @override
+  Future<void> markAsPaid(String tripId) {
+    return firestore.collection(path).doc(tripId).update({
+      'payment_status': 'paid',
+    });
   }
 }

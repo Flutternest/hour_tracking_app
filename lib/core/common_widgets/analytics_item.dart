@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../features/common/providers/trip.dart';
 import '../constants/colors.dart';
+import 'loading_builder.dart';
 
 class AnalyticsItem extends StatelessWidget {
   const AnalyticsItem({
@@ -15,7 +16,7 @@ class AnalyticsItem extends StatelessWidget {
 
   final bool isPaid;
   final Trip trip;
-  final VoidCallback? onMarkAsPaidTap;
+  final Function? onMarkAsPaidTap;
 
   @override
   Widget build(BuildContext context) {
@@ -186,15 +187,23 @@ class AnalyticsItem extends StatelessWidget {
                 ),
                 if (!isPaid && onMarkAsPaidTap != null) ...[
                   verticalSpaceRegular,
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                    ),
-                    icon: const Icon(Icons.check_circle),
-                    label: const Text("Mark as Paid"),
-                  ),
+                  LoadingBuilder(builder: (context, isLoading, setLoading) {
+                    return ElevatedButton.icon(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              setLoading(true);
+                              await onMarkAsPaidTap?.call();
+                              setLoading(false);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                      ),
+                      icon: const Icon(Icons.check_circle),
+                      label: Text(isLoading ? "Marking.." : "Mark as Paid"),
+                    );
+                  }),
                 ],
               ],
             ),

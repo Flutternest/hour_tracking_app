@@ -6,6 +6,8 @@ import 'package:flux_mvp/core/common_widgets/app_padding.dart';
 import 'package:flux_mvp/core/common_widgets/error_view.dart';
 import 'package:flux_mvp/core/constants/colors.dart';
 import 'package:flux_mvp/core/utils/ui_helper.dart';
+import 'package:flux_mvp/features/common/repositories/trip_repository.dart';
+import 'package:flux_mvp/routing/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/common_widgets/analytics_item.dart';
@@ -128,7 +130,21 @@ class AdminAnalyticsPage extends HookConsumerWidget {
                       itemBuilder: (context, index) {
                         final trip = trips[index];
                         return AnalyticsItem(
-                            isPaid: trip.paymentStatus == "paid", trip: trip);
+                          isPaid: trip.paymentStatus == "paid",
+                          trip: trip,
+                          onMarkAsPaidTap: () async {
+                            await Future.delayed(
+                                const Duration(milliseconds: 700));
+                            await ref
+                                .watch(tripRepositoryProvider)
+                                .markAsPaid(trip.tripId!.toString())
+                                .then((value) {
+                              showSnackBar(
+                                  AppRouter.navigatorKey.currentContext,
+                                  message: "Trip marked as paid");
+                            });
+                          },
+                        );
                       },
                       separatorBuilder: (context, index) =>
                           verticalSpaceRegular,
