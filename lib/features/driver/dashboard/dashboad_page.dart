@@ -336,10 +336,7 @@ class DashboardPage extends HookConsumerWidget {
                                 DataRow(cells: [
                                   const DataCell(Text("Earnings")),
                                   DataCell(Text(
-                                    ((milesCovered.value * (trip.payPerMile!))
-                                            .toDouble()
-                                            .toPrecision(1))
-                                        .toStringAsFixed(1),
+                                    "\$${((milesCovered.value * (trip.payPerMile!)).toDouble().toPrecision(1)).toStringAsFixed(1)}",
                                   )),
                                 ]),
                                 DataRow(cells: [
