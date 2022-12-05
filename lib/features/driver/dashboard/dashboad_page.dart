@@ -55,16 +55,20 @@ class DashboardPage extends HookConsumerWidget {
           PrefKeys.timerLoggingDateTime,
           DateTime.now().toIso8601String(),
         );
+        await prefs.set(PrefKeys.milesCovered, milesCovered.value);
       });
     }, []);
 
     useEffect(() {
       currentTimer.value = prefs.get(PrefKeys.timerCount) ?? 0;
+      milesCovered.value = prefs.get(PrefKeys.milesCovered) ?? 0.0;
+
       final timerLoggingDateTime = prefs.get(PrefKeys.timerLoggingDateTime);
       if (timerLoggingDateTime != null) {
         final difference =
             DateTime.now().difference(DateTime.parse(timerLoggingDateTime));
         currentTimer.value += difference.inSeconds;
+        milesCovered.value += (difference.inSeconds / 3600) * 75;
       }
 
       initiateTimer.call();
@@ -380,6 +384,7 @@ class DashboardPage extends HookConsumerWidget {
                                                   showErrorSnackBar(context, e))
                                               .then((_) async {
                                             currentTimer.value = 0;
+                                            milesCovered.value = 0;
                                             timer.value?.cancel();
                                             await Future.wait([
                                               prefs.remove(PrefKeys
@@ -387,6 +392,8 @@ class DashboardPage extends HookConsumerWidget {
                                               prefs.remove(
                                                   PrefKeys.isTimerOnGoing),
                                               prefs.remove(PrefKeys.timerCount),
+                                              prefs.remove(
+                                                  PrefKeys.milesCovered),
                                             ]);
                                             ref.invalidate(onGoingTripProvider);
                                             ref.invalidate(
@@ -450,6 +457,15 @@ class DashboardPage extends HookConsumerWidget {
                                   const DataCell(Text("Miles Covered")),
                                   DataCell(Text(
                                     milesCovered.value.toStringAsFixed(2),
+                                  )),
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Earnings")),
+                                  DataCell(Text(
+                                    ((milesCovered.value * (trip.payPerMile!))
+                                            .toDouble()
+                                            .toPrecision(1))
+                                        .toStringAsFixed(1),
                                   )),
                                 ]),
                                 DataRow(cells: [
