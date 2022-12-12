@@ -9,7 +9,7 @@ final tripDetailsProvider =
 });
 
 final tripDetailsStreamProvider =
-    StreamProvider.family<Trip?, int?>((ref, tripId) {
+    StreamProvider.autoDispose.family<Trip?, int?>((ref, tripId) {
   if (tripId == null) const Stream.empty();
   return ref
       .read(tripRepositoryProvider)
